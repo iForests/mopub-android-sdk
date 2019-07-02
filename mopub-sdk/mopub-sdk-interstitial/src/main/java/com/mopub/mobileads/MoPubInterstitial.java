@@ -308,7 +308,7 @@ public class MoPubInterstitial implements CustomEventInterstitialAdapter.CustomE
     }
 
     @NonNull
-    MoPubInterstitialView getMoPubInterstitialView() {
+    public MoPubInterstitialView getMoPubInterstitialView() {
         return mInterstitialView;
     }
 

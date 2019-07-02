@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 
 import com.mopub.common.privacy.AdvertisingId;
 import com.mopub.network.AdResponse;
+import com.mopub.network.ImpressionData;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -64,6 +65,8 @@ public class AdReport implements Serializable {
 
         return parameters.toString();
     }
+
+    public ImpressionData getImpressionData() { return mAdResponse.getImpressionData(); }
 
     public String getResponseString() {
         return mAdResponse.getStringBody();
