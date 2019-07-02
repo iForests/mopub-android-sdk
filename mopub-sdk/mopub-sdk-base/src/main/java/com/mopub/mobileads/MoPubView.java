@@ -423,7 +423,7 @@ public class MoPubView extends FrameLayout {
         }
     }
 
-    AdViewController getAdViewController() {
+    public AdViewController getAdViewController() {
         return mAdViewController;
     }
 
