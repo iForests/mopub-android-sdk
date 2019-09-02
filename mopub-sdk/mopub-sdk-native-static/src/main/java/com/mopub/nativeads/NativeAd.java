@@ -243,4 +243,6 @@ public class NativeAd {
 
         mIsClicked = true;
     }
+
+    public ImpressionData getImpressionData() { return mImpressionData; }
 }
