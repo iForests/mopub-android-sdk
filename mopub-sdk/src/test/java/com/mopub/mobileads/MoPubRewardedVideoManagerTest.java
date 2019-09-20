@@ -6,8 +6,8 @@ package com.mopub.mobileads;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.AdFormat;
 import com.mopub.common.AdType;
@@ -109,7 +109,7 @@ public class
     public void setup() throws Exception {
         mActivity = Robolectric.buildActivity(Activity.class).create().get();
 
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
@@ -173,7 +173,7 @@ public class
         MoPubRewardedVideoManager.getAdRequestStatusMapping().clearMapping();
         mTestCustomEventSharedPrefs.edit().clear().apply();
         MoPubIdentifierTest.clearPreferences(mActivity);
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
@@ -633,36 +633,6 @@ public class
     }
 
     @Test
-    public void onAdSuccess_withEmptyServerExtras_shouldStillSaveEmptyMapInSharedPrefs() throws JSONException, MoPubNetworkError {
-        JSONObject jsonResponse = createRewardedJsonResponse();
-        JSONObject firstResponse = jsonResponse.getJSONArray(ResponseHeader.AD_RESPONSES.getKey()).getJSONObject(0);
-        JSONObject metadata = firstResponse.getJSONObject(ResponseHeader.METADATA.getKey());
-        metadata.put(ResponseHeader.CUSTOM_EVENT_NAME.getKey(), "com.mopub.mobileads.MoPubRewardedVideoManagerTest$TestCustomEvent");
-        metadata.put(ResponseHeader.AD_TYPE.getKey(), AdType.CUSTOM);
-        metadata.put(ResponseHeader.CUSTOM_EVENT_DATA.getKey(), "");
-
-        NetworkResponse netResponse = new NetworkResponse(jsonResponse.toString().getBytes());
-        MultiAdResponse testResponse = new MultiAdResponse(mActivity, netResponse, AdFormat.REWARDED_VIDEO, adUnitId);
-
-        // Robolectric executes its handlers immediately, so if we want the async behavior we see
-        // in an actual app we have to pause the main looper until we're done successfully loading the ad.
-        ShadowLooper.pauseMainLooper();
-
-        MoPubRewardedVideoManager.loadVideo(adUnitId, null);
-        requestListener.onSuccessResponse(testResponse);
-
-        ShadowLooper.unPauseMainLooper();
-
-        Map<String, ?> networkInitSettings = mTestCustomEventSharedPrefs.getAll();
-        String testCustomEventClassName = TestCustomEvent.class.getName();
-
-        // Verify that TestCustomEvent has an empty map saved in SharedPrefs.
-        assertThat(networkInitSettings.size()).isEqualTo(1);
-        assertThat(networkInitSettings.containsKey(testCustomEventClassName)).isTrue();
-        assertThat(networkInitSettings.get(testCustomEventClassName)).isEqualTo("{}");
-    }
-
-    @Test
     public void onAdSuccess_withServerExtras_shouldSaveInitParamsInSharedPrefs() throws JSONException, MoPubNetworkError {
         JSONObject jsonResponse = createRewardedJsonResponse();
         JSONObject firstResponse = jsonResponse.getJSONArray(ResponseHeader.AD_RESPONSES.getKey()).getJSONObject(0);
@@ -690,7 +660,7 @@ public class
         assertThat(networkInitSettings.size()).isEqualTo(1);
         assertThat(networkInitSettings.containsKey(testCustomEventClassName)).isTrue();
         assertThat(networkInitSettings.get(testCustomEventClassName))
-                .isEqualTo("{\"k1\":\"v1\",\"k2\":\"v2\"}");
+                .isEqualTo("{\"adunit_format\":\"full\",\"k1\":\"v1\",\"k2\":\"v2\"}");
     }
 
     @Test
@@ -726,7 +696,7 @@ public class
         // Verify that TestCustomEvent has new init params saved in SharedPrefs.
         assertThat(networkInitSettings.size()).isEqualTo(1);
         assertThat(networkInitSettings.containsKey(testCustomEventClassName)).isTrue();
-        assertThat(networkInitSettings.get(testCustomEventClassName)).isEqualTo("{\"k3\":\"v3\"}");
+        assertThat(networkInitSettings.get(testCustomEventClassName)).isEqualTo("{\"adunit_format\":\"full\",\"k3\":\"v3\"}");
     }
 
     @Test
@@ -1523,7 +1493,8 @@ public class
                 "    }\n" +
                 "  ],\n" +
 //                "  \"x-next-url\": \"http://ads-staging.mopub.com/m/ad?v=6&id=920b6145fb1546cf8b5cf2ac34638bb7&nv=6.1&dn=Google%2CAndroid%20SDK%20built%20for%20x86%2Csdk_gphone_x86&bundle=com.mopub.simpleadsdemo&z=%2B0000&o=p&w=1080&h=1920&sc_a=2.625&mcc=310&mnc=260&iso=us&cn=Android&ct=3&av=4.20.0&udid=ifa%3Abd9022e4-5ced-4af2-8cba-dd15ffa715ee&dnt=0&mr=1&android_perms_ext_storage=0&vv=3&exclude=b4148ea9ed7b4003b9d7c1e61036e0b1&request_id=5e3d79f17abb48468d95fde17e82f7f6&fail=1\"\n" +
-                "  \"x-next-url\": \"\"\n" +
+                "  \"x-next-url\": \"\",\n" +
+                "  \"adunit-format\": \"full\"\n" +
                 "}";
 
         return new JSONObject(jsonString);

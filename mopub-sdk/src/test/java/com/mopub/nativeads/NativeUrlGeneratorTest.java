@@ -143,11 +143,12 @@ public class NativeUrlGeneratorTest {
     @After
     public void tearDown() throws Exception {
         MoPubIdentifierTest.clearPreferences(context);
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
         BaseUrlGenerator.setAppEngineInfo(null);
+        BaseUrlGenerator.setWrapperVersion("");
     }
 
     @Test
@@ -369,7 +370,7 @@ public class NativeUrlGeneratorTest {
     }
 
     @Test
-    public void generateUrlString_whenDeveloperSuppliesMoreRecentLocationThanLocationService_shouldUseDeveloperSuppliedLocation() {
+    public void generateUrlString_whenDeveloperSuppliesLocation__whenLocationServiceDoesNotProvideALocation_shouldUseDeveloperSuppliedLocation() {
 
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
 
@@ -384,12 +385,8 @@ public class NativeUrlGeneratorTest {
 
         // Mock out the LocationManager's last known location to be older than the
         // developer-supplied location.
-        Location olderLocation = new Location("");
-        olderLocation.setLatitude(40);
-        olderLocation.setLongitude(-105);
-        olderLocation.setAccuracy(8.0f);
-        olderLocation.setTime(System.currentTimeMillis() - 888888);
-        shadowLocationManager.setLastKnownLocation(LocationManager.GPS_PROVIDER, olderLocation);
+        shadowLocationManager.setLastKnownLocation(LocationManager.GPS_PROVIDER, null);
+        shadowLocationManager.setLastKnownLocation(LocationManager.NETWORK_PROVIDER, null);
 
         RequestParameters requestParameters = new RequestParameters.Builder()
                 .location(locationFromDeveloper)
@@ -525,6 +522,15 @@ public class NativeUrlGeneratorTest {
 
         assertEquals(getParameterFromRequestUrl(adUrl, "e_name"), "ename");
         assertEquals(getParameterFromRequestUrl(adUrl, "e_ver"), "eversion");
+    }
+
+    @Test
+    public void generateUrlString_withWrapperVersion_shouldIncludeWrapperVersion() {
+        subject = new NativeUrlGenerator(context).withAdUnitId(AD_UNIT_ID);
+        MoPub.setWrapperVersion("NativeUrlGeneratorTestVersion");
+        String adUrl = generateMinimumUrlString();
+
+        assertEquals(getParameterFromRequestUrl(adUrl, "w_ver"), "NativeUrlGeneratorTestVersion");
     }
 
     private List<String> getDesiredAssetsListFromRequestUrlString(String requestString) {

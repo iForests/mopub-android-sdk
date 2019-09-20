@@ -4,7 +4,7 @@
 
 package com.mopub.common.privacy;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Add one of these to PersonalInfoManager#subscribeConsentStatusChangeListener to listen for

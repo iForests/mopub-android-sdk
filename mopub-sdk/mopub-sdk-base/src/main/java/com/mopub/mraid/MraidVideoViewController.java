@@ -9,7 +9,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.StateListDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;

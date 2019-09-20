@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.AndroidRuntimeException;
 
 import com.mopub.common.MoPub;
 import com.mopub.common.MoPub.BrowserAgent;
@@ -31,6 +32,7 @@ import java.util.List;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -256,13 +258,19 @@ public class IntentsTest {
     }
 
     @Test
-    public void launchIntentForUserClick_shouldStartActivity() throws Exception {
+    public void launchIntentForUserClick_withActivityContext_shouldStartActivity() throws Exception {
         Intent intent = mock(Intent.class);
 
-        Intents.launchIntentForUserClick(applicationContext, intent, null);
+        Intents.launchIntentForUserClick(activityContext, intent, null);
         final Intent startedActivity = ShadowApplication.getInstance().peekNextStartedActivity();
 
         assertThat(startedActivity).isNotNull();
+    }
+
+    @Test(expected = AndroidRuntimeException.class)
+    public void launchIntentForUserClick_withApplicationContext_shouldThrowAndroidRuntimeException() throws Exception {
+        Intent intent = mock(Intent.class);
+        Intents.launchIntentForUserClick(applicationContext, intent, null);
     }
 
     @Test

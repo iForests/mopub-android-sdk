@@ -4,7 +4,7 @@
 
 package com.mopub.mobileads;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Extend this class to mediate 3rd party rewarded videos.

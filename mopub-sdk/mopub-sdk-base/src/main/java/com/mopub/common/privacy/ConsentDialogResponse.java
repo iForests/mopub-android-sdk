@@ -4,7 +4,7 @@
 
 package com.mopub.common.privacy;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.Preconditions;
 

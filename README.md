@@ -37,7 +37,7 @@ The MoPub SDK is available via:
     }
 
     dependencies {
-        implementation('com.mopub:mopub-sdk:5.8.0@aar') {
+        implementation('com.mopub:mopub-sdk:5.9.0@aar') {
             transitive = true
         }
     }
@@ -59,27 +59,27 @@ The MoPub SDK is available via:
         // ... other project dependencies
 
         // For banners
-        implementation('com.mopub:mopub-sdk-banner:5.8.0@aar') {
+        implementation('com.mopub:mopub-sdk-banner:5.9.0@aar') {
             transitive = true
         }
         
         // For interstitials
-        implementation('com.mopub:mopub-sdk-interstitial:5.8.0@aar') {
+        implementation('com.mopub:mopub-sdk-interstitial:5.9.0@aar') {
             transitive = true
         }
 
         // For rewarded videos. This will automatically also include interstitials
-        implementation('com.mopub:mopub-sdk-rewardedvideo:5.8.0@aar') {
+        implementation('com.mopub:mopub-sdk-rewardedvideo:5.9.0@aar') {
             transitive = true
         }
 
         // For native static (images).
-        implementation('com.mopub:mopub-sdk-native-static:5.8.0@aar') {
+        implementation('com.mopub:mopub-sdk-native-static:5.9.0@aar') {
             transitive = true
         }
 
         // For native video. This will automatically also include native static
-        implementation('com.mopub:mopub-sdk-native-video:5.8.0@aar') {
+        implementation('com.mopub:mopub-sdk-native-video:5.9.0@aar') {
             transitive = true
         }
     }
@@ -108,27 +108,22 @@ The MoPub SDK is available via:
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for a complete list of additions, fixes, and enhancements in the latest release.
 
 - **Features**
-  - Height-based constants have been added to banners and medium rectangles. Call `MoPubView#setAdSize(MoPubAdSize)` before loading an ad or pass in the ad size to `MoPubView#loadAd(MoPubAdSize)` to request an ad of a particular height. See [https://developers.mopub.com/publishers/android/banner/] for more information.
-  - Deprecated skyscraper and leaderboard ad formats. Leaderboards can now be made by setting the `MoPubView` ad size to `MoPubAdSize.HEIGHT_90`.
-  - Renamed the MRect ad format as Medium Rectangle.
-  - Upgraded Robolectric dependency to 4.3.
-  - Updated the icon for the sample app.
-  - Sample app now has visible callbacks.
-  - VAST Videos now play with `device` orientation by default.
-  - The background for interstitials is now black. The background for banners and medium rectangles remain transparent.
+  - Certified against Android 10.
+  - Removed support for `tel`, `sms`, `createCalendarEvent`, and `storePicture` functions for MRAID ads.
+  - Upgraded ExoPlayer to 2.10.3.
+  - Migrated to AndroidX. See [https://developer.android.com/jetpack/androidx/migrate] for more information.
+  - Upgraded `targetSdkVersion` and `compileSdkVersion` to 29.
 
 - **Bug Fixes**
-  - Improved the look and feel of the sample app on tablets.
-  - Fixed warnings in the `build.gradle` file.
-  - Improved test run speed.
-  - Improved the VAST video selection logic.
+  - SDK location is now prioritized over publisher-specified location.
+  - Fixed a rare crash when layout params are available but the parent view is null.
 
 ## Requirements
 
 - Android 4.1 (API Version 16) and up (**Updated in 4.12.0**)
-- android-support-v4.jar, r28 (**Updated in 5.4.0**)
-- android-support-annotations.jar, r28 (**Updated in 5.4.0**)
-- android-support-v7-recyclerview.jar, r28 (**Updated in 5.4.0**)
+- androidx.legacy:legacy-support-v4:1.0.0 (**Updated in 5.9.0**)
+- androidx.annotation:annotation:1.1.0 (**Updated in 5.9.0**)
+- androidx.recyclerview:recyclerview:1.0.0 (**Updated in 5.9.0**)
 - MoPub Volley Library (mopub-volley-2.1.0.jar - available on JCenter) (**Updated in 5.6.0**)
 - **Recommended** Google Play Services (com.google.android.gms:play-services-ads-identifier:16.0.0 and com.google.android.gms:play-services-base:16.0.1) (**Updated in 5.6.0**)
 
@@ -150,7 +145,7 @@ Normally, to add the MoPub SDK to your app via JCenter, your `build.gradle` woul
 
 ```	
 dependencies {
-    implementation('com.mopub:mopub-sdk:5.8.0@aar') {
+    implementation('com.mopub:mopub-sdk:5.9.0@aar') {
         transitive = true
     }
 }
@@ -159,7 +154,7 @@ Update to the following to exclude one or both viewability vendors:
 
 ```
 dependencies {
-    implementation('com.mopub:mopub-sdk:5.8.0@aar') {
+    implementation('com.mopub:mopub-sdk:5.9.0@aar') {
         transitive = true
         exclude module: 'libAvid-mopub' // To exclude AVID
         exclude module: 'moat-mobile-app-kit' // To exclude Moat
@@ -183,7 +178,7 @@ If your app's target SDK is 23 or higher _**and**_ the user's device is running 
 - Dangerous permission [`ACCESS_COARSE_LOCATION`](http://developer.android.com/reference/android/Manifest.permission.html#ACCESS_COARSE_LOCATION) is needed to pass network location data to MoPub.
 - Dangerous permission [`ACCESS_FINE_LOCATION`](http://developer.android.com/reference/android/Manifest.permission.html#ACCESS_FINE_LOCATION) is needed to pass GPS location data to MoPub.
     - Granting `ACCESS_FINE_LOCATION` also allows network location data to be passed to MoPub without the need to also grant `ACCESS_COARSE_LOCATION`.
-- Dangerous permission [`WRITE_EXTERNAL_STORAGE`](http://developer.android.com/reference/android/Manifest.permission.html#WRITE_EXTERNAL_STORAGE) is optional and only required for MRAID 2.0 storePicture ads.
+- _**Note:** SDK Version 5.9.0 removes the requirement for the dangerous permission [`WRITE_EXTERNAL_STORAGE`](http://developer.android.com/reference/android/Manifest.permission.html#WRITE_EXTERNAL_STORAGE)._
 - _**Note:** The user can deny granting any dangerous permissions during runtime, so please make sure your app can handle this properly._
 - _**Note:** The user can revoke any permissions granted previously by going to your app's Settings screen, so please make sure your app can handle this properly._
 

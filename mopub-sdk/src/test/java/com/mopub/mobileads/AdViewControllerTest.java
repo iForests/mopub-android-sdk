@@ -140,7 +140,7 @@ public class AdViewControllerTest {
     @After
     public void tearDown() throws Exception {
         reset(methodBuilder);
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();

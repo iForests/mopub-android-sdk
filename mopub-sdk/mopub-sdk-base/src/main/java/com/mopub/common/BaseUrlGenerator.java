@@ -7,11 +7,12 @@ package com.mopub.common;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.DisplayCutout;
 import android.view.WindowInsets;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.network.Networking;
 import com.mopub.network.PlayServicesUrlRewriter;
@@ -101,9 +102,15 @@ public abstract class BaseUrlGenerator {
      */
     private static final String APP_ENGINE_VERSION = "e_ver";
 
+    /**
+     * Optional, wrapper version.
+     */
+    private static final String WRAPPER_VERSION = "w_ver";
+
     private StringBuilder mStringBuilder;
     private boolean mFirstParam;
     private static AppEngineInfo mAppEngineInfo = null;
+    private static String sWrapperVersion;
 
     public abstract String generateUrlString(String serverHostname);
 
@@ -192,6 +199,17 @@ public abstract class BaseUrlGenerator {
     }
 
     /**
+     * Sets the 'w_ver' param. This is not intended for publisher use.
+     *
+     * @param wrapperVersion The wrapper version.
+     */
+    public static void setWrapperVersion(@NonNull final String wrapperVersion) {
+        Preconditions.checkNotNull(wrapperVersion);
+        
+        sWrapperVersion = wrapperVersion;
+    }
+
+    /**
      * Add parameters 'e_name' and 'e_ver' to the URL
      */
     protected void appendAppEngineInfo() {
@@ -200,6 +218,10 @@ public abstract class BaseUrlGenerator {
             addParam(APP_ENGINE_NAME, info.mName);
             addParam(APP_ENGINE_VERSION, info.mVersion);
         }
+    }
+
+    protected void appendWrapperVersion() {
+        addParam(WRAPPER_VERSION, sWrapperVersion);
     }
 
     /**

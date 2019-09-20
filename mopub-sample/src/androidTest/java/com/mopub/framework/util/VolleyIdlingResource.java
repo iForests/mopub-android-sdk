@@ -5,7 +5,7 @@
 package com.mopub.framework.util;
 
 import android.content.Context;
-import android.support.test.espresso.IdlingResource;
+import androidx.test.espresso.IdlingResource;
 import android.util.Log;
 
 import com.mopub.network.Networking;

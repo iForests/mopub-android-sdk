@@ -6,7 +6,7 @@ package com.mopub.mobileads;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.common.test.support.SdkTestRunner;

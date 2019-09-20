@@ -8,7 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.Preconditions;
 import com.mopub.common.logging.MoPubLog;
@@ -54,7 +54,8 @@ class AdUnitDataSource {
     private MoPubSampleAdUnit createSampleAdUnit(final MoPubSampleAdUnit sampleAdUnit,
             final boolean isUserGenerated) {
         deleteAllAdUnitsWithAdUnitIdAndAdType(sampleAdUnit.getAdUnitId(),
-                sampleAdUnit.getFragmentClassName());
+                sampleAdUnit.getFragmentClassName(),
+                isUserGenerated);
 
         final ContentValues values = new ContentValues();
         final int userGenerated = isUserGenerated ? 1 : 0;
@@ -88,14 +89,15 @@ class AdUnitDataSource {
     }
 
     private void deleteAllAdUnitsWithAdUnitIdAndAdType(@NonNull final String adUnitId,
-            @NonNull final String adType) {
+            @NonNull final String adType, boolean isUserGenerated) {
         Preconditions.checkNotNull(adUnitId);
         Preconditions.checkNotNull(adType);
 
+        final String userGenerated = isUserGenerated ? "1" : "0";
         final SQLiteDatabase database = mDatabaseHelper.getWritableDatabase();
         final int numDeletedRows = database.delete(TABLE_AD_CONFIGURATIONS,
                 COLUMN_AD_UNIT_ID + " = '" + adUnitId +
-                "' AND " + COLUMN_USER_GENERATED + " = 1 AND " +
+                "' AND " + COLUMN_USER_GENERATED + " = " + userGenerated + " AND " +
                 COLUMN_AD_TYPE + " = '" + adType + "'", null);
         MoPubLog.log(CUSTOM, numDeletedRows + " rows deleted with adUnitId: " + adUnitId);
         database.close();
@@ -122,10 +124,7 @@ class AdUnitDataSource {
     }
 
     private void populateDefaultSampleAdUnits() {
-        final HashSet<MoPubSampleAdUnit> allAdUnits = new HashSet<>();
-        for (final MoPubSampleAdUnit adUnit : getAllAdUnits()) {
-            allAdUnits.add(adUnit);
-        }
+        final HashSet<MoPubSampleAdUnit> allAdUnits = new HashSet<>(getAllAdUnits());
 
         for (final MoPubSampleAdUnit defaultAdUnit :
                 SampleAppDefaultAdUnits.getDefaultAdUnits(mContext)) {

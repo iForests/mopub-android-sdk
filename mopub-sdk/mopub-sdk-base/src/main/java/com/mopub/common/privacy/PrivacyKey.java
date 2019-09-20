@@ -4,7 +4,7 @@
 
 package com.mopub.common.privacy;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Keys for gdpr sync, consent dialog requests, and setting consent state.

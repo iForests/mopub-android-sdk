@@ -4,7 +4,7 @@
 
 package com.mopub.common.util.test.support;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.util.Reflection;
 

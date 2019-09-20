@@ -5,7 +5,7 @@
 package com.mopub.mobileads;
 
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.Preconditions;
 

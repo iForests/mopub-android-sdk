@@ -7,7 +7,7 @@ package com.mopub.mobileads;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.mopub.common.DataKeys;
 import com.mopub.common.test.support.SdkTestRunner;

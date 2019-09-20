@@ -4,7 +4,7 @@
 
 package com.mopub.mobileads.test.support;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.AdReport;
 import com.mopub.mobileads.CustomEventBannerAdapter;

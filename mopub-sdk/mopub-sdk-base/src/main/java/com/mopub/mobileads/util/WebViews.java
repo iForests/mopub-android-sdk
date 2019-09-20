@@ -5,7 +5,7 @@
 package com.mopub.mobileads.util;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.webkit.CookieManager;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;

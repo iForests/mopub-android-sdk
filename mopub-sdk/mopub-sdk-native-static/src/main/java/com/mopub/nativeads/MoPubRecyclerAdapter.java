@@ -5,10 +5,11 @@
 package com.mopub.nativeads;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -461,7 +462,7 @@ public final class MoPubRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
      * Returns a stable negative item ID for ad items & calls getItemId on your original adapter for
      * non-ad items.
      *
-     * Returns {@link android.support.v7.widget.RecyclerView#NO_ID} if your original adapter does
+     * Returns {@link androidx.recyclerview.widget.RecyclerView#NO_ID} if your original adapter does
      * not have stable IDs.
      *
      * @inheritDoc

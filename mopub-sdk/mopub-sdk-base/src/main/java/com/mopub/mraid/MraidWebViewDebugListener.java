@@ -4,7 +4,7 @@
 
 package com.mopub.mraid;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;

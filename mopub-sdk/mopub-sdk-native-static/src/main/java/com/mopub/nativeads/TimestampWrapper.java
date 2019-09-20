@@ -5,7 +5,7 @@
 package com.mopub.nativeads;
 
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 class TimestampWrapper<T> {
     @NonNull final T mInstance;

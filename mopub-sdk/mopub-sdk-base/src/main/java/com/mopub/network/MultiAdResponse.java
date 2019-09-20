@@ -6,8 +6,8 @@ package com.mopub.network;
 
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.mopub.common.AdFormat;
@@ -90,6 +90,7 @@ public class MultiAdResponse implements Iterator<AdResponse> {
 
         JSONObject jsonObject = new JSONObject(responseBody);
         mFailUrl = jsonObject.optString(ResponseHeader.FAIL_URL.getKey());
+        final String adUnitFormat = jsonObject.optString(ResponseHeader.ADUNIT_FORMAT.getKey());
         String requestId = jsonObject.optString(ResponseHeader.REQUEST_ID.getKey());
 
         final Integer backoffMs = extractIntegerHeader(jsonObject, ResponseHeader.BACKOFF_MS);
@@ -134,7 +135,13 @@ public class MultiAdResponse implements Iterator<AdResponse> {
         for (int i = 0; i < adResponses.length(); i++) {
             try {
                 JSONObject item = adResponses.getJSONObject(i);
-                AdResponse singleAdResponse = parseSingleAdResponse(appContext, networkResponse, item, adUnitId, adFormat, requestId);
+                AdResponse singleAdResponse = parseSingleAdResponse(appContext,
+                        networkResponse,
+                        item,
+                        adUnitId,
+                        adFormat,
+                        adUnitFormat,
+                        requestId);
                 if (!AdType.CLEAR.equals(singleAdResponse.getAdType())) {
                     list.add(singleAdResponse);
                     continue;
@@ -216,11 +223,13 @@ public class MultiAdResponse implements Iterator<AdResponse> {
                                                       @NonNull final JSONObject jsonObject,
                                                       @Nullable final String adUnitId,
                                                       @NonNull final AdFormat adFormat,
+                                                      @NonNull final String adUnitFormat,
                                                       @Nullable final String requestId) throws JSONException, MoPubNetworkError {
         Preconditions.checkNotNull(appContext);
         Preconditions.checkNotNull(networkResponse);
         Preconditions.checkNotNull(jsonObject);
         Preconditions.checkNotNull(adFormat);
+        Preconditions.checkNotNull(adUnitFormat);
 
         MoPubLog.log(RESPONSE_RECEIVED, jsonObject.toString());
 
@@ -353,6 +362,9 @@ public class MultiAdResponse implements Iterator<AdResponse> {
             // Used by Banner, Interstitial
             serverExtras.put(DataKeys.CLICKTHROUGH_URL_KEY, clickTrackingUrl);
         }
+
+        serverExtras.put(DataKeys.ADUNIT_FORMAT, adUnitFormat);
+
         if (eventDataIsInResponseBody(adTypeString, fullAdTypeString)) {
             // Some MoPub-specific custom events get their serverExtras from the response itself:
             serverExtras.put(DataKeys.HTML_RESPONSE_BODY_KEY, content);

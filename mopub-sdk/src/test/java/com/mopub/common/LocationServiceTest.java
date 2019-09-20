@@ -40,7 +40,7 @@ public class LocationServiceTest {
     private PersonalInfoManager mockPersonalInfoManager;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception{
         activity = Robolectric.buildActivity(Activity.class).create().get();
 
         LocationService.clearLastKnownLocation();
@@ -66,12 +66,23 @@ public class LocationServiceTest {
                 (LocationManager) RuntimeEnvironment.application.getSystemService(Context.LOCATION_SERVICE));
         shadowLocationManager.setLastKnownLocation(LocationManager.NETWORK_PROVIDER, networkLocation);
         shadowLocationManager.setLastKnownLocation(LocationManager.GPS_PROVIDER, gpsLocation);
+
         mockPersonalInfoManager = mock(PersonalInfoManager.class);
+        when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
+        new Reflection.MethodBuilder(null, "setPersonalInfoManager")
+                .setStatic(MoPub.class)
+                .setAccessible()
+                .addParam(PersonalInfoManager.class, mockPersonalInfoManager)
+                .execute();
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         LocationService.clearLastKnownLocation();
+        new Reflection.MethodBuilder(null, "resetMoPub")
+                .setStatic(MoPub.class)
+                .setAccessible()
+                .execute();
     }
 
     @Test
@@ -89,13 +100,6 @@ public class LocationServiceTest {
     public void getLastKnownLocation_withFinePermission_withLocationAwarenessTruncated_shouldTruncateLocationLatLon() throws  Exception{
         Shadows.shadowOf(activity).grantPermissions(ACCESS_FINE_LOCATION);
 
-        when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
-        new Reflection.MethodBuilder(null, "setPersonalInfoManager")
-                .setStatic(MoPub.class)
-                .setAccessible()
-                .addParam(PersonalInfoManager.class, mockPersonalInfoManager)
-                .execute();
-
         final Location result =
                 LocationService.getLastKnownLocation(activity, 2, MoPub.LocationAwareness.TRUNCATED);
 
@@ -109,12 +113,6 @@ public class LocationServiceTest {
     @Test
     public void getLastKnownLocation_withOnlyCoarsePermission_shouldReturnNetworkLocation() throws Exception {
         Shadows.shadowOf(activity).grantPermissions(ACCESS_COARSE_LOCATION);
-        when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
-        new Reflection.MethodBuilder(null, "setPersonalInfoManager")
-                .setStatic(MoPub.class)
-                .setAccessible()
-                .addParam(PersonalInfoManager.class, mockPersonalInfoManager)
-                .execute();
 
         final Location result =
                 LocationService.getLastKnownLocation(activity, 10, MoPub.LocationAwareness.NORMAL);
@@ -149,12 +147,7 @@ public class LocationServiceTest {
     public void getLastKnownLocation_withLocationAwarenessDisabled_shouldReturnNull() throws Exception {
         Shadows.shadowOf(activity).grantPermissions(ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION);
 
-        when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
-        new Reflection.MethodBuilder(null, "setPersonalInfoManager")
-            .setStatic(MoPub.class)
-            .setAccessible()
-            .addParam(PersonalInfoManager.class, mockPersonalInfoManager)
-            .execute();
+
 
         final Location result =
                 LocationService.getLastKnownLocation(activity, 10, MoPub.LocationAwareness.DISABLED);
@@ -178,7 +171,8 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void getLastKnownLocation_withStalePreviousKnownLocation_shouldReturnNull() {
+    public void getLastKnownLocation_withStalePreviousKnownLocation_shouldReturnGpsLocation() {
+        Shadows.shadowOf(activity).grantPermissions(ACCESS_FINE_LOCATION);
         LocationService locationService = LocationService.getInstance();
         locationService.mLastKnownLocation = cachedLocation;
         // Setting the location updated time to be older than minimum location refresh time,
@@ -189,7 +183,22 @@ public class LocationServiceTest {
         final Location result = LocationService.getLastKnownLocation(activity, 10,
                 MoPub.LocationAwareness.NORMAL);
 
-        assertThat(result).isNull();
+        assertThat(result).isEqualTo(gpsLocation);
+    }
+
+    @Test
+    public void getLastKnownLocation_withStalePreviousKnownLocation_withNoPermissions_shouldReturnCachedLocation() {
+        LocationService locationService = LocationService.getInstance();
+        locationService.mLastKnownLocation = cachedLocation;
+        // Setting the location updated time to be older than minimum location refresh time,
+        // in milliseconds.
+        locationService.mLocationLastUpdatedMillis = SystemClock.elapsedRealtime() -
+                MoPub.getMinimumLocationRefreshTimeMillis() * 2;
+
+        final Location result = LocationService.getLastKnownLocation(activity, 10,
+                MoPub.LocationAwareness.NORMAL);
+
+        assertThat(result).isEqualTo(cachedLocation);
     }
 
     @Test

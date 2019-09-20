@@ -6,8 +6,8 @@ package com.mopub.common;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.MoPub.BrowserAgent;
 import com.mopub.common.privacy.SyncRequest;
@@ -110,7 +110,7 @@ public class MoPubTest {
 
     @After
     public void tearDown() throws Exception {
-        MoPub.clearAdvancedBidders();
+        MoPub.resetMoPub();
         MoPub.resetBrowserAgent();
         ClientMetadata.clearForTesting();
     }

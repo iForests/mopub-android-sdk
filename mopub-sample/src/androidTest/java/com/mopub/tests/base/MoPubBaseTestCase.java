@@ -4,7 +4,7 @@
 
 package com.mopub.tests.base;
 
-import android.support.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.espresso.intent.rule.IntentsTestRule;
 
 import com.mopub.simpleadsdemo.MoPubSampleActivity;
 

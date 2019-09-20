@@ -4,7 +4,7 @@
 
 package com.mopub.common;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.mopub.volley.Request;
 

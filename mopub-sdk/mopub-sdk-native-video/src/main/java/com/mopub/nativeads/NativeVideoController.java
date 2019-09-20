@@ -12,10 +12,11 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -44,7 +45,6 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
-
 import com.mopub.common.Preconditions;
 import com.mopub.common.VisibilityTracker.VisibilityChecker;
 import com.mopub.common.VisibleForTesting;
@@ -408,6 +408,7 @@ public class NativeVideoController extends ExoPlayer.DefaultEventListener implem
             defaultLoadControlBuilder.setAllocator(allocator);
 
             mExoPlayer = mMoPubExoPlayerFactory.newInstance(
+                    mContext,
                     new Renderer[]{mVideoRenderer, mAudioRenderer},
                     new DefaultTrackSelector(),
                     defaultLoadControlBuilder.createDefaultLoadControl());
@@ -507,9 +508,11 @@ public class NativeVideoController extends ExoPlayer.DefaultEventListener implem
      */
     @VisibleForTesting
     static class MoPubExoPlayerFactory {
-        public ExoPlayer newInstance(@NonNull final Renderer[] renderers,
-                @NonNull final TrackSelector trackSelector, @Nullable LoadControl loadControl) {
-            return ExoPlayerFactory.newInstance(renderers, trackSelector, loadControl);
+        public ExoPlayer newInstance(@NonNull final Context context,
+                                     @NonNull final Renderer[] renderers,
+                                     @NonNull final TrackSelector trackSelector,
+                                     @Nullable LoadControl loadControl) {
+            return ExoPlayerFactory.newInstance(context, renderers, trackSelector, loadControl);
         }
     }
 

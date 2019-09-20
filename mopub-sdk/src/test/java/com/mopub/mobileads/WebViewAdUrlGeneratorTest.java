@@ -18,13 +18,14 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.AppEngineInfo;
 import com.mopub.common.BaseAdapterConfiguration;
@@ -191,11 +192,12 @@ public class WebViewAdUrlGeneratorTest {
         ClientMetadata.clearForTesting();
         RequestRateTrackerTest.clearRequestRateTracker();
         MoPubIdentifierTest.clearPreferences(context);
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
         BaseUrlGenerator.setAppEngineInfo(null);
+        BaseUrlGenerator.setWrapperVersion("");
     }
 
     @Test
@@ -281,7 +283,7 @@ public class WebViewAdUrlGeneratorTest {
 
         assertThat(adUrl).isEqualTo(expectedAdUrl);
 
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
@@ -395,7 +397,7 @@ public class WebViewAdUrlGeneratorTest {
 
         assertThat(adUrl).isEqualTo(expectedAdUrl);
 
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
@@ -419,7 +421,7 @@ public class WebViewAdUrlGeneratorTest {
         String adUrl = subject.generateUrlString("ads.mopub.com");
         assertThat(adUrl).isEqualTo(expectedAdUrl);
 
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
@@ -659,7 +661,7 @@ public class WebViewAdUrlGeneratorTest {
 
         assertThat(adUrl).isEqualTo(urlBuilder.withNetworkType(MoPubNetworkType.UNKNOWN).build());
 
-        new Reflection.MethodBuilder(null, "clearAdvancedBidders")
+        new Reflection.MethodBuilder(null, "resetMoPub")
                 .setStatic(MoPub.class)
                 .setAccessible()
                 .execute();
@@ -721,7 +723,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceGpsProviderHasMostRecentLocation_WithFineLocationPermissionOnly_shouldUseLocationServiceValue() throws Exception {
+    public void generateAdUrl_whenLocationServiceGpsProviderHasMostRecentLocation_withFineLocationPermissionOnly_shouldUseLocationServiceValue() throws Exception {
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
 
         Shadows.shadowOf(context).denyPermissions(ACCESS_COARSE_LOCATION);
@@ -751,7 +753,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceGpsProviderHasMostRecentLocation_WithCoarseLocationPermissionOnly_shouldUseDeveloperSuppliedLocation() throws Exception {
+    public void generateAdUrl_whenLocationServiceGpsProviderHasMostRecentLocation_withCoarseLocationPermissionOnly_shouldUseDeveloperSuppliedLocation() throws Exception {
         Shadows.shadowOf(context).denyPermissions(ACCESS_FINE_LOCATION);
 
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
@@ -781,7 +783,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceGpsProviderHasMostRecentLocation_WithNoLocationPermission_shouldUseDeveloperSuppliedLocation() throws Exception {
+    public void generateAdUrl_whenLocationServiceGpsProviderHasMostRecentLocation_withNoLocationPermission_shouldUseDeveloperSuppliedLocation() throws Exception {
         Shadows.shadowOf(context).denyPermissions(ACCESS_FINE_LOCATION);
         Shadows.shadowOf(context).denyPermissions(ACCESS_COARSE_LOCATION);
 
@@ -812,7 +814,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenDeveloperSuppliesMoreRecentLocationThanLocationService_shouldUseDeveloperSuppliedLocation() throws Exception {
+    public void generateAdUrl_whenDeveloperSuppliesLocation_shouldUseSdkSuppliedLocation() throws Exception {
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
 
         Location locationFromDeveloper = new Location("");
@@ -825,7 +827,7 @@ public class WebViewAdUrlGeneratorTest {
                 (LocationManager) RuntimeEnvironment.application.getSystemService(Context.LOCATION_SERVICE));
 
         // Mock out the LocationManager's last known location to be older than the
-        // developer-supplied location.
+        // developer-supplied location. This location should still be used.
         Location olderLocation = new Location("");
         olderLocation.setLatitude(40);
         olderLocation.setLongitude(-105);
@@ -835,13 +837,13 @@ public class WebViewAdUrlGeneratorTest {
 
         String adUrl = subject.withLocation(locationFromDeveloper)
                 .generateUrlString("ads.mopub.com");
-        assertThat(getParameterFromRequestUrl(adUrl, "ll")).isEqualTo("42.0,-42.0");
-        assertThat(getParameterFromRequestUrl(adUrl, "lla")).isEqualTo("3");
-        assertThat(getParameterFromRequestUrl(adUrl, "llsdk")).isEmpty();
+        assertThat(getParameterFromRequestUrl(adUrl, "ll")).isEqualTo("40.0,-105.0");
+        assertThat(getParameterFromRequestUrl(adUrl, "lla")).isEqualTo("8");
+        assertThat(getParameterFromRequestUrl(adUrl, "llsdk")).isEqualTo("1");
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceNetworkProviderHasMostRecentLocation_shouldUseLocationServiceValue() throws Exception {
+    public void generateAdUrl_whenLocationServiceNetworkProviderHasLocation_shouldUseLocationServiceValue() throws Exception {
 
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
 
@@ -871,7 +873,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceNetworkProviderHasMostRecentLocation_WithFineLocationPermissionOnly_shouldUseLocationServiceValue() throws Exception {
+    public void generateAdUrl_whenLocationServiceNetworkProviderHasMostRecentLocation_withFineLocationPermissionOnly_shouldUseLocationServiceValue() throws Exception {
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
 
         Shadows.shadowOf(context).denyPermissions(ACCESS_COARSE_LOCATION);
@@ -902,7 +904,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceNetworkProviderHasMostRecentLocation_WithCoarseLocationPermissionOnly_shouldUseLocationServiceValue() throws Exception {
+    public void generateAdUrl_whenLocationServiceNetworkProviderHasLocation_withCoarseLocationPermissionOnly_shouldUseLocationServiceValue() throws Exception {
         Shadows.shadowOf(context).denyPermissions(ACCESS_FINE_LOCATION);
 
         when(mockPersonalInfoManager.canCollectPersonalInformation()).thenReturn(true);
@@ -933,7 +935,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_whenLocationServiceNetworkProviderHasMostRecentLocation_WithNoLocationPermission_shouldUseDeveloperSuppliedLocation() throws Exception {
+    public void generateAdUrl_whenLocationServiceNetworkProviderHasLocation_withNoLocationPermission_shouldUseDeveloperSuppliedLocation() throws Exception {
         Shadows.shadowOf(context).denyPermissions(ACCESS_FINE_LOCATION);
         Shadows.shadowOf(context).denyPermissions(ACCESS_COARSE_LOCATION);
 
@@ -1022,6 +1024,15 @@ public class WebViewAdUrlGeneratorTest {
 
         assertEquals(getParameterFromRequestUrl(adUrl, "e_name"), "ename");
         assertEquals(getParameterFromRequestUrl(adUrl, "e_ver"), "eversion");
+    }
+
+    @Test
+    public void generateAdUrl_withWrapperVersion_shouldIncludeWrapperVersion() {
+        MoPub.setWrapperVersion("WebViewAdUrlGeneratorTestVersion");
+
+        String adUrl = generateMinimumUrlString();
+
+        assertEquals(getParameterFromRequestUrl(adUrl, "w_ver"), "WebViewAdUrlGeneratorTestVersion");
     }
 
     private String getParameterFromRequestUrl(String requestString, String key) {

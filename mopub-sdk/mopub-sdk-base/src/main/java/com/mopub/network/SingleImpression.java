@@ -4,7 +4,7 @@
 
 package com.mopub.network;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.logging.MoPubLog;
 

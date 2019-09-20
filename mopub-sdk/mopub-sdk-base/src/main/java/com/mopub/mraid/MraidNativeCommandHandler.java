@@ -5,34 +5,27 @@
 package com.mopub.mraid;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.CalendarContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.MoPubHttpUrlConnection;
 import com.mopub.common.Preconditions;
 import com.mopub.common.VisibleForTesting;
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.common.util.AsyncTasks;
-import com.mopub.common.util.DeviceUtils;
-import com.mopub.common.util.Intents;
 import com.mopub.common.util.ResponseHeader;
 import com.mopub.common.util.Streams;
-import com.mopub.common.util.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -49,8 +42,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.os.Environment.MEDIA_MOUNTED;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
 import static com.mopub.common.util.ResponseHeader.LOCATION;
 
@@ -67,85 +58,20 @@ public class MraidNativeCommandHandler {
 
     public static final String ANDROID_CALENDAR_CONTENT_TYPE = "vnd.android.cursor.item/event";
 
-    void createCalendarEvent(final Context context, final Map<String, String> params)
-            throws MraidCommandException {
-        if (isCalendarAvailable(context)) {
-            try {
-                Map<String, Object> calendarParams = translateJSParamsToAndroidCalendarEventMapping(params);
-                Intent intent = new Intent(Intent.ACTION_INSERT).setType(ANDROID_CALENDAR_CONTENT_TYPE);
-                for (String key : calendarParams.keySet()) {
-                    Object value = calendarParams.get(key);
-                    if (value instanceof Long) {
-                        intent.putExtra(key, ((Long) value).longValue());
-                    } else if (value instanceof Integer) {
-                        intent.putExtra(key, ((Integer) value).intValue());
-                    } else {
-                        intent.putExtra(key, (String) value);
-                    }
-                }
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                MoPubLog.log(CUSTOM, "no calendar app installed");
-                throw new MraidCommandException(
-                        "Action is unsupported on this device - no calendar app installed");
-            } catch (IllegalArgumentException e) {
-                MoPubLog.log(CUSTOM, "create calendar: invalid parameters " + e.getMessage());
-                throw new MraidCommandException(e);
-            } catch (Exception e) {
-                MoPubLog.log(CUSTOM, "could not create calendar event");
-                throw new MraidCommandException(e);
-            }
-        } else {
-            MoPubLog.log(CUSTOM, "unsupported action createCalendarEvent for devices pre-ICS");
-            throw new MraidCommandException("Action is " +
-                    "unsupported on this device (need Android version Ice Cream Sandwich or " +
-                    "above)");
-        }
-    }
-
-    void storePicture(@NonNull final Context context,
-            @NonNull final String imageUrl,
-            @NonNull MraidCommandFailureListener failureListener) throws MraidCommandException {
-        if (!isStorePictureSupported(context)) {
-            MoPubLog.log(CUSTOM, "Error downloading file - the device does not have an SD card mounted, or " +
-                    "the Android permission is not granted.");
-            throw new MraidCommandException("Error downloading file " +
-                    " - the device does not have an SD card mounted, " +
-                    "or the Android permission is not granted.");
-        }
-
-        if (context instanceof Activity) {
-            showUserDialog(context, imageUrl, failureListener);
-        } else {
-            Toast.makeText(context, "Downloading image to Picture gallery...", Toast.LENGTH_SHORT).show();
-            downloadImage(context, imageUrl, failureListener);
-        }
-    }
-
     boolean isTelAvailable(Context context) {
-        Intent telIntent = new Intent(Intent.ACTION_DIAL);
-        telIntent.setData(Uri.parse("tel:"));
-
-        return Intents.deviceCanHandleIntent(context, telIntent);
+        return false; // No longer supported as of MoPub SDK 5.9.0
     }
 
     boolean isSmsAvailable(Context context) {
-        Intent smsIntent = new Intent(Intent.ACTION_VIEW);
-        smsIntent.setData(Uri.parse("sms:"));
-
-        return Intents.deviceCanHandleIntent(context, smsIntent);
+        return false; // No longer supported as of MoPub SDK 5.9.0
     }
 
     public static boolean isStorePictureSupported(Context context) {
-        return MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-                && DeviceUtils.isPermissionGranted(context, WRITE_EXTERNAL_STORAGE);
+        return false; // No longer supported as of MoPub SDK 5.9.0
     }
 
     static boolean isCalendarAvailable(Context context) {
-        Intent calendarIntent = new Intent(Intent.ACTION_INSERT).setType(ANDROID_CALENDAR_CONTENT_TYPE);
-
-        return Intents.deviceCanHandleIntent(context, calendarIntent);
+        return false; // No longer supported as of MoPub SDK 5.9.0
     }
 
     /**
@@ -374,23 +300,6 @@ public class MraidNativeCommandHandler {
                     }
                 });
         AsyncTasks.safeExecuteOnExecutor(downloadImageAsyncTask, uriString);
-    }
-
-    private void showUserDialog(final Context context, final String imageUrl,
-            final MraidCommandFailureListener failureListener) {
-        AlertDialog.Builder alertDialogDownloadImage = new AlertDialog.Builder(context);
-        alertDialogDownloadImage
-                .setTitle("Save Image")
-                .setMessage("Download image to Picture gallery?")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        downloadImage(context, imageUrl, failureListener);
-                    }
-                })
-                .setCancelable(true)
-                .show();
     }
 
     /**

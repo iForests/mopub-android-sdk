@@ -13,10 +13,9 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +27,9 @@ import android.webkit.ConsoleMessage;
 import android.webkit.JsResult;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.AdReport;
 import com.mopub.common.CloseableLayout;
@@ -55,7 +57,9 @@ import java.util.EnumSet;
 
 import static android.content.pm.ActivityInfo.CONFIG_ORIENTATION;
 import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
+import static com.mopub.common.UrlAction.HANDLE_PHONE_SCHEME;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
+import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM_WITH_THROWABLE;
 import static com.mopub.common.util.ManifestUtils.isDebuggable;
 import static com.mopub.common.util.Utils.bitMaskContainsFlag;
 
@@ -1185,6 +1189,15 @@ public class MraidController {
     void handleOpen(@NonNull final String url) {
         if (mMraidListener != null) {
             mMraidListener.onOpen();
+        }
+
+
+        final Uri uri = Uri.parse(url);
+        if (HANDLE_PHONE_SCHEME.shouldTryHandlingUrl(uri)) {
+            MoPubLog.log(CUSTOM_WITH_THROWABLE,
+                    String.format("Uri scheme %s is not allowed.", uri.getScheme()),
+                    new MraidCommandException("Unsupported MRAID Javascript command"));
+            return;
         }
 
         final UrlHandler.Builder builder = new UrlHandler.Builder();

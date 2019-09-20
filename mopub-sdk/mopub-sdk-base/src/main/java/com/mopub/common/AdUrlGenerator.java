@@ -7,19 +7,19 @@ package com.mopub.common;
 import android.content.Context;
 import android.graphics.Point;
 import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.WindowInsets;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.privacy.ConsentData;
 import com.mopub.common.privacy.PersonalInfoManager;
 import com.mopub.common.util.DateAndTime;
-import com.mopub.mobileads.MoPubView;
+import com.mopub.common.util.ResponseHeader;
 import com.mopub.network.RequestRateTracker;
 
 import static com.mopub.common.ClientMetadata.MoPubNetworkType;
-import com.mopub.common.util.ResponseHeader;
 
 public abstract class AdUrlGenerator extends BaseUrlGenerator {
 
@@ -208,8 +208,7 @@ public abstract class AdUrlGenerator extends BaseUrlGenerator {
                 MoPub.getLocationPrecision(),
                 MoPub.getLocationAwareness());
 
-        if (locationFromLocationService != null &&
-                (location == null || locationFromLocationService.getTime() >= location.getTime())) {
+        if (locationFromLocationService != null) {
             bestLocation = locationFromLocationService;
         }
 
@@ -324,6 +323,7 @@ public abstract class AdUrlGenerator extends BaseUrlGenerator {
 
         setSdkVersion(clientMetadata.getSdkVersion());
         appendAppEngineInfo();
+        appendWrapperVersion();
         setDeviceInfo(clientMetadata.getDeviceManufacturer(),
                 clientMetadata.getDeviceModel(),
                 clientMetadata.getDeviceProduct());

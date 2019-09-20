@@ -6,10 +6,10 @@ package com.mopub.framework.util;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.core.internal.deps.guava.collect.Iterables;
-import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
-import android.support.test.runner.lifecycle.Stage;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.espresso.core.internal.deps.guava.collect.Iterables;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

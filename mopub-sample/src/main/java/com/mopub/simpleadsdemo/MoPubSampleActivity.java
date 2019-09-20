@@ -8,20 +8,21 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.mopub.common.Constants;
 import com.mopub.common.MoPub;
 import com.mopub.common.SdkConfiguration;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.mopub.common.Constants.UNUSED_REQUEST_CODE;
 import static com.mopub.common.logging.MoPubLog.LogLevel.DEBUG;
 import static com.mopub.common.logging.MoPubLog.LogLevel.INFO;
@@ -61,7 +61,6 @@ public class MoPubSampleActivity extends AppCompatActivity
 
     static {
         REQUIRED_DANGEROUS_PERMISSIONS.add(ACCESS_COARSE_LOCATION);
-        REQUIRED_DANGEROUS_PERMISSIONS.add(WRITE_EXTERNAL_STORAGE);
     }
 
     // Sample app web views are debuggable.
@@ -82,7 +81,8 @@ public class MoPubSampleActivity extends AppCompatActivity
     @Nullable
     PersonalInfoManager mPersonalInfoManager;
 
-    @Nullable DrawerLayout mDrawerLayout;
+    @Nullable
+    DrawerLayout mDrawerLayout;
 
     @Nullable
     private ConsentStatusChangeListener mConsentStatusChangeListener;

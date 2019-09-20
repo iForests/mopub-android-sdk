@@ -5,7 +5,7 @@
 package com.mopub.common;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * This is a uniform interface to 3rd party SDKs that need to know when Activity lifecycle events

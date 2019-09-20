@@ -5,7 +5,7 @@
 package com.mopub.common;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * This empty implementation of {@link com.mopub.common.LifecycleListener} is convenient for writing

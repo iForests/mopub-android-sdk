@@ -5,7 +5,7 @@
 package com.mopub.common.util;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class ImageUtils {
 

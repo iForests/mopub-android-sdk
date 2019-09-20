@@ -74,7 +74,7 @@
         app:moPubAdSize="match_view" >
     </com.mopub.mobileads.MoPubView>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/callbacks_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

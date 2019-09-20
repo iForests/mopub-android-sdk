@@ -4,8 +4,8 @@
 
 package com.mopub.common;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Represents the orientation returned for MoPub ads from the MoPub ad server.

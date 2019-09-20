@@ -5,7 +5,7 @@
 package com.mopub.mobileads;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.network.MoPubRequest;
 import com.mopub.volley.NetworkResponse;

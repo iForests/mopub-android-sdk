@@ -71,6 +71,7 @@ public class ConsentDialogUrlGeneratorTest {
     @After
     public void tearDown() {
         BaseUrlGenerator.setAppEngineInfo(null);
+        BaseUrlGenerator.setWrapperVersion("");
     }
 
     @Test(expected = NullPointerException.class)
@@ -126,6 +127,7 @@ public class ConsentDialogUrlGeneratorTest {
     @Test
     public void generateUrlString_withAllParameters_withAppEngine_shouldGenerateValidUrl() {
         MoPub.setEngineInformation(new AppEngineInfo("unity", "123"));
+        MoPub.setWrapperVersion("ConsentDialogUrlGeneratorTestVersion");
         subject = new ConsentDialogUrlGenerator(context, AD_UNIT_ID, EXPLICIT_YES.getValue());
         subject.withConsentedPrivacyPolicyVersion(POLICY_VERSION)
                 .withConsentedVendorListVersion(VENDOR_LIST_VERSION)
@@ -143,13 +145,14 @@ public class ConsentDialogUrlGeneratorTest {
         assertThat(map.get("nv")).isEqualTo(MoPub.SDK_VERSION);
         assertThat(map.get("e_name")).isEqualTo("unity");
         assertThat(map.get("e_ver")).isEqualTo("123");
+        assertThat(map.get("w_ver")).isEqualTo("ConsentDialogUrlGeneratorTestVersion");
         assertThat(map.get("language")).isEqualTo(CURRENT_LANGUAGE);
         assertThat(map.get("gdpr_applies")).isEqualTo("1");
         assertThat(map.get("force_gdpr_applies")).isEqualTo("1");
         assertThat(map.get("consented_vendor_list_version")).isEqualTo(VENDOR_LIST_VERSION);
         assertThat(map.get("consented_privacy_policy_version")).isEqualTo(POLICY_VERSION);
         assertThat(map.get("bundle")).isEqualTo(BUNDLE);
-        assertThat(map.size()).isEqualTo(14);
+        assertThat(map.size()).isEqualTo(15);
     }
 
     @Test

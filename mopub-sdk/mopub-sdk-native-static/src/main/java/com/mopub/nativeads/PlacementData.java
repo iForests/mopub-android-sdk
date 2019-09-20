@@ -4,8 +4,8 @@
 
 package com.mopub.nativeads;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.nativeads.MoPubNativeAdPositioning.MoPubClientPositioning;

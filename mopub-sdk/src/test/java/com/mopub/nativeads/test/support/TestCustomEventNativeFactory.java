@@ -4,7 +4,7 @@
 
 package com.mopub.nativeads.test.support;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.nativeads.CustomEventNative;
 import com.mopub.nativeads.factories.CustomEventNativeFactory;

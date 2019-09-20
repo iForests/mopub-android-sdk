@@ -10,7 +10,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public abstract class BaseWidgetDrawable extends Drawable {
     protected void drawTextWithinBounds(@NonNull final Canvas canvas,

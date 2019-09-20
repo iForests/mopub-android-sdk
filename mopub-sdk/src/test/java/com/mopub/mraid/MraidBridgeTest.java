@@ -391,34 +391,6 @@ public class MraidBridgeTest {
         assertThat(uriCaptor.getValue().toString()).isEqualTo("https://valid-url");
     }
 
-    @Test
-    public void runCommand_storePicture_shouldCallListener()
-            throws MraidCommandException {
-        attachWebViews();
-        subjectBanner.setClicked(true);
-        Map<String, String> params = new HashMap<>();
-        params.put("uri", "https://valid-url");
-
-        subjectBanner.runCommand(MraidJavascriptCommand.STORE_PICTURE, params);
-
-        verify(mockNativeCommandHandler).storePicture(any(Context.class), eq("https://valid-url"),
-                any(MraidCommandFailureListener.class));
-    }
-
-    @Test
-    public void runCommand_createCalendarEvent_shouldCallListener()
-            throws MraidCommandException {
-        attachWebViews();
-        subjectBanner.setClicked(true);
-        Map<String, String> params = new HashMap<>();
-        params.put("eventName", "Dinner at my house");
-
-        subjectBanner.runCommand(MraidJavascriptCommand.CREATE_CALENDAR_EVENT, params);
-
-        verify(mockNativeCommandHandler).createCalendarEvent(any(Context.class),
-                anyMapOf(String.class, String.class));
-    }
-
     private void attachWebViews() {
         subjectBanner.attachView(mockBannerWebView);
         subjectInterstitial.attachView(mockInterstitialWebView);

@@ -4,16 +4,16 @@
 
 package com.mopub.framework.pages;
 
-import android.support.annotation.NonNull;
-import android.support.test.espresso.ViewInteraction;
+import androidx.annotation.NonNull;
+import androidx.test.espresso.ViewInteraction;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.matcher.RootMatchers.isPlatformPopup;
-import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
-import static android.support.test.espresso.matcher.ViewMatchers.withResourceName;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
+import static androidx.test.espresso.matcher.ViewMatchers.withResourceName;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 import com.mopub.framework.base.BasePage;
@@ -82,7 +82,7 @@ public class AdListPage extends BasePage {
     }
 
     public AdListPage deleteAdUnit(@NonNull final String adUnitName) {
-        final String deleteButtonLabel = "DELETE";
+        final String deleteButtonLabel = "Delete";
 
         goToHome();
 

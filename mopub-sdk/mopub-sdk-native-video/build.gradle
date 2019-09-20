@@ -13,7 +13,7 @@ android {
 
 dependencies {
     api project(':mopub-sdk:mopub-sdk-native-static')
-    api 'com.google.android.exoplayer:exoplayer:2.9.5'
+    api 'com.google.android.exoplayer:exoplayer:2.10.3'
 }
 
 project.description = 'MoPub Android SDK - Native Video'

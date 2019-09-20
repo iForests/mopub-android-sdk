@@ -6,7 +6,8 @@ package com.mopub.mraid;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.mobileads.ResponseBodyInterstitialTest;

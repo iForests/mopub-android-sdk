@@ -8,7 +8,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.mopub.TestSdkHelper;
 

@@ -13,7 +13,7 @@ import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.ImageView;

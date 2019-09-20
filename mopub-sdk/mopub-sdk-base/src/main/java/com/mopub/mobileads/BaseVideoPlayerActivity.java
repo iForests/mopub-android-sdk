@@ -9,7 +9,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.Constants;
 import com.mopub.common.CreativeOrientation;

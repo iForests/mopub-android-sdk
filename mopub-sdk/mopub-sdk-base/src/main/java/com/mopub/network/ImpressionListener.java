@@ -4,9 +4,9 @@
 
 package com.mopub.network;
 
-import android.support.annotation.AnyThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * ImpressionListener is an interface to notify the application about ad impressions for all

@@ -4,7 +4,7 @@
 
 package com.mopub.common.privacy;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public enum ConsentChangeReason {
     GRANTED_BY_USER("Consent was explicitly granted by the user"),

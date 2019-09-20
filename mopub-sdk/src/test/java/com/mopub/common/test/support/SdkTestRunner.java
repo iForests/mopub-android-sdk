@@ -4,7 +4,7 @@
 
 package com.mopub.common.test.support;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.CacheService;
 import com.mopub.common.ClientMetadata;

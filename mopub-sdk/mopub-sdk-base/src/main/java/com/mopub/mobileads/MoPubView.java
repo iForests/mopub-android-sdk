@@ -14,8 +14,8 @@ import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -406,14 +406,14 @@ public class MoPubView extends FrameLayout {
         final ViewGroup.LayoutParams layoutParams = getLayoutParams();
 
         // If WRAP_CONTENT or MATCH_PARENT
-        if (layoutParams != null && layoutParams.width < 0) {
+        if (getParent() != null && layoutParams != null && layoutParams.width < 0) {
             resolvedAdSize.x = ((View) getParent()).getWidth();
         }
 
         // MoPubAdSize only applies to height
         if (mMoPubAdSize != MoPubAdSize.MATCH_VIEW) {
             resolvedAdSize.y = mMoPubAdSize.toInt();
-        } else if (layoutParams != null && layoutParams.height < 0) {
+        } else if (getParent() != null && layoutParams != null && layoutParams.height < 0) {
             resolvedAdSize.y = ((View) getParent()).getHeight();
         }
 

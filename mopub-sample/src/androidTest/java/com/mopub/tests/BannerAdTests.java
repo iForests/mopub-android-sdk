@@ -4,11 +4,11 @@
 
 package com.mopub.tests;
 
-import android.support.test.espresso.ViewInteraction;
-import android.support.test.filters.LargeTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.espresso.ViewInteraction;
+import androidx.test.filters.LargeTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.mopub.framework.models.BannerAdLabels;
+import com.mopub.framework.models.AdLabels;
 import com.mopub.framework.pages.AdDetailPage;
 import com.mopub.framework.pages.AdListPage;
 import com.mopub.framework.pages.AdListPage.AdUnitType;
@@ -18,10 +18,10 @@ import com.mopub.tests.base.MoPubBaseTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.hasChildCount;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.*;
 
@@ -31,7 +31,7 @@ public class BannerAdTests extends MoPubBaseTestCase {
 
     // Test Variables
     private static final AdUnitType AD_TYPE = AdUnitType.BANNER;
-    private static final String TITLE = BannerAdLabels.BANNER;
+    private static final String TITLE = AdLabels.BANNER;
     private static final String WEB_PAGE_LINK = "https://www.mopub.com/click-test/";
 
     /*

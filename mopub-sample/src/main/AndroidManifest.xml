@@ -11,11 +11,6 @@
          and play services permissions. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <!--WRITE_EXTERNAL_STORAGE is optional and only required for MRAID 2.0 storePicture ads.-->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:remove="android:maxSdkVersion" />
-
     <uses-feature
         android:name="android.hardware.bluetooth"
         android:required="false" />
@@ -81,11 +76,6 @@
         <activity
             android:name="com.mopub.common.privacy.ConsentDialogActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-
-        <!-- AppLovin -->
-        <meta-data
-            android:name="applovin.sdk.key"
-            android:value="g9p0buIGwmV205uzWu93fLFLsxAwz_ve9hflay_UiVXiaQf5Iq8yAOI0JTwHSqxcVaL4XLZEs5yQVcWpRelb21" />
 
         <!-- Google Ads -->
         <!-- note: this is the sample app id from Google's documentation -->

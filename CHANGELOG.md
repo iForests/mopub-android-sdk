@@ -1,3 +1,15 @@
+## Version 5.9.0 (September 16, 2019)
+- **Features**
+  - Certified against Android 10.
+  - Removed support for `tel`, `sms`, `createCalendarEvent`, and `storePicture` functions for MRAID ads.
+  - Upgraded ExoPlayer to 2.10.3.
+  - Migrated to AndroidX. See [https://developer.android.com/jetpack/androidx/migrate] for more information.
+  - Upgraded `targetSdkVersion` and `compileSdkVersion` to 29.
+
+- **Bug Fixes**
+  - SDK location is now prioritized over publisher-specified location.
+  - Fixed a rare crash when layout params are available but the parent view is null.
+
 ## Version 5.8.0 (July 22, 2019)
 - **Features**
   - Height-based constants have been added to banners and medium rectangles. Call `MoPubView#setAdSize(MoPubAdSize)` before loading an ad or pass in the ad size to `MoPubView#loadAd(MoPubAdSize)` to request an ad of a particular height. See [https://developers.mopub.com/publishers/android/banner/] for more information.

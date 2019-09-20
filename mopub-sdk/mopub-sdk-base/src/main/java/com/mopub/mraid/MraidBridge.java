@@ -10,9 +10,6 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +21,10 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import com.mopub.common.AdReport;
 import com.mopub.common.CloseableLayout.ClosePosition;
 import com.mopub.common.Constants;
@@ -34,7 +35,6 @@ import com.mopub.common.logging.MoPubLog;
 import com.mopub.mobileads.BaseWebView;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.ViewGestureDetector;
-import com.mopub.mraid.MraidNativeCommandHandler.MraidCommandFailureListener;
 import com.mopub.network.Networking;
 
 import org.json.JSONObject;
@@ -482,20 +482,10 @@ public class MraidBridge {
                 uri = parseURI(params.get("uri"));
                 mMraidBridgeListener.onPlayVideo(uri);
                 break;
+                // STORE_PICTURE and CREATE_CALENDAR_EVENT are no longer supported
             case STORE_PICTURE:
-                uri = parseURI(params.get("uri"));
-                mMraidNativeCommandHandler.storePicture(mMraidWebView.getContext(), uri.toString(),
-                        new MraidCommandFailureListener() {
-                            @Override
-                            public void onFailure(final MraidCommandException exception) {
-                                fireErrorEvent(command, exception.getMessage());
-                            }
-                        });
-                break;
-
             case CREATE_CALENDAR_EVENT:
-                mMraidNativeCommandHandler.createCalendarEvent(mMraidWebView.getContext(), params);
-                break;
+                throw new MraidCommandException("Unsupported MRAID Javascript command");
             case UNSPECIFIED:
                 throw new MraidCommandException("Unspecified MRAID Javascript command");
         }

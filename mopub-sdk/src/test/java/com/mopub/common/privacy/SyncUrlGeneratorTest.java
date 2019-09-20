@@ -69,11 +69,13 @@ public class SyncUrlGeneratorTest {
     @After
     public void tearDown() {
         BaseUrlGenerator.setAppEngineInfo(null);
+        BaseUrlGenerator.setWrapperVersion("");
     }
 
     @Test
     public void generateUrlString_withAllParams_shouldGenerateFullUrl() {
         MoPub.setEngineInformation(new AppEngineInfo("ename", "eversion"));
+        MoPub.setWrapperVersion("SyncUrlGeneratorTestVersion");
         subject.withAdUnitId(AD_UNIT);
         subject.withUdid(UDID);
         subject.withGdprApplies(true);
@@ -125,6 +127,8 @@ public class SyncUrlGeneratorTest {
                 "e_name")).isEqualTo("ename");
         assertThat(NativeUrlGeneratorTest.getParameterFromRequestUrl(url,
                 "e_ver")).isEqualTo("eversion");
+        assertThat(NativeUrlGeneratorTest.getParameterFromRequestUrl(url,
+                "w_ver")).isEqualTo("SyncUrlGeneratorTestVersion");
     }
 
     @Test

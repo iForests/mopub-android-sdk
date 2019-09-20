@@ -4,7 +4,7 @@
 
 package com.mopub.common;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Application engine information is optional data that is sent to the MoPub server

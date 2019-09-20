@@ -5,7 +5,7 @@
 package com.mopub.nativeads;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mopub.common.BaseUrlGenerator;
 import com.mopub.common.ClientMetadata;
@@ -40,6 +40,8 @@ class PositioningUrlGenerator extends BaseUrlGenerator {
         addParam(SDK_VERSION_KEY, clientMetadata.getSdkVersion());
 
         appendAppEngineInfo();
+
+        appendWrapperVersion();
 
         setDeviceInfo(clientMetadata.getDeviceManufacturer(),
                 clientMetadata.getDeviceModel(),

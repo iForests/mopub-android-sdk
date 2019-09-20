@@ -4,7 +4,7 @@
 
 package com.mopub.nativeads;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * An object that represents placed ads in a {@link com.mopub.nativeads.MoPubStreamAdPlacer}

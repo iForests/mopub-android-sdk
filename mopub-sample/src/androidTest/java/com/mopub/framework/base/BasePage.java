@@ -4,20 +4,20 @@
 
 package com.mopub.framework.base;
 
-import android.support.annotation.NonNull;
-import android.support.test.espresso.ViewInteraction;
-import android.support.test.espresso.action.ViewActions;
+import androidx.annotation.NonNull;
+import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.action.ViewActions;
 
 import com.mopub.framework.pages.AdListPage;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withResourceName;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withResourceName;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.fail;
 
@@ -27,7 +27,7 @@ public class BasePage {
     private static final int SAMPLE_TIME_MS = 200;
     private static final int SAMPLES_PER_SEC = 5;
 
-    protected final String ADD_AD_UNIT_LABEL = "ADD AN AD UNIT";
+    protected final String ADD_AD_UNIT_LABEL = "New ad unit";
 
     public void quickClickElement(@NonNull final ViewInteraction element) {
         element.perform(click());
@@ -53,30 +53,17 @@ public class BasePage {
         clickElement(element, failMessage);
     }
 
-    public void clickElement(@NonNull final ViewInteraction element, final String failMessage) {
-        clickElement(element, DEFAULT_RETRY_COUNT, failMessage);
-    }
-
     public void clickElement(@NonNull final ViewInteraction element) {
-        clickElement(element, DEFAULT_RETRY_COUNT, null);
+        clickElement(element, null);
     }
 
-    public void clickElement(@NonNull final ViewInteraction element, final int retryCount,
-                             final String failMessage) {
+    public void clickElement(@NonNull final ViewInteraction element, @NonNull final String failMessage) {
         final String message = (failMessage != null) ?
                 failMessage :
                 "This element is not present";
 
         if (waitForElement(element)) {
             element.perform(click());
-
-            if (waitForElement(element, 1) && retryCount > 0) {
-                final int newRetryCount = retryCount - 1;
-                clickElement(element, newRetryCount, failMessage);
-            } else if (retryCount <= 0) {
-                fail(message);
-            }
-
             return;
         }
 
@@ -100,7 +87,7 @@ public class BasePage {
             try {
                 element.check(matches(isEnabled()));
                 return true;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 try {
                     Thread.sleep(SAMPLE_TIME_MS);
                 } catch (InterruptedException e1) {

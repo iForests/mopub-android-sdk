@@ -5,8 +5,8 @@
 package com.mopub.mobileads;
 
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.CacheService;
 import com.mopub.common.MoPubHttpUrlConnection;
