@@ -19,10 +19,12 @@ class DetailFragmentViewHolder {
     @NonNull final TextView mDescriptionView;
     @NonNull final Button mLoadButton;
     @Nullable final Button mShowButton;
+    @NonNull final Button mChangeAdSizeButton;
     @NonNull final TextView mAdUnitIdView;
     @NonNull final EditText mKeywordsField;
     @NonNull final EditText mUserDataKeywordsField;
     @Nullable final EditText mCustomDataField;
+    @NonNull final TextView mAdSizeInfoView;
 
     /**
      * Internal constructor. Use {@link #fromView(View)} to create instances of this class.
@@ -43,28 +45,41 @@ class DetailFragmentViewHolder {
             @NonNull final TextView adUnitIdView,
             @NonNull final Button loadButton,
             @Nullable final Button showButton,
+            @Nullable final Button changeAdSizeButton,
             @NonNull final EditText keywordsField,
             @NonNull final EditText userDataKeywordsField,
-            @Nullable final EditText customDataField) {
+            @Nullable final EditText customDataField,
+            @NonNull final TextView adSizeInfoView) {
         mDescriptionView = descriptionView;
         mAdUnitIdView = adUnitIdView;
         mLoadButton = loadButton;
         mShowButton = showButton;
+        mChangeAdSizeButton = changeAdSizeButton;
         mKeywordsField = keywordsField;
         mUserDataKeywordsField = userDataKeywordsField;
         mCustomDataField = customDataField;
+        mAdSizeInfoView = adSizeInfoView;
     }
 
     static DetailFragmentViewHolder fromView(@NonNull final View view) {
-        final TextView descriptionView = (TextView) view.findViewById(R.id.description);
-        final TextView adUnitIdView = (TextView) view.findViewById(R.id.ad_unit_id);
-        final Button loadButton = (Button) view.findViewById(R.id.load_button);
-        final Button showButton = (Button) view.findViewById(R.id.show_button);
-        final EditText keywordsField = (EditText) view.findViewById(R.id.keywords_field);
-        final EditText userDataKeywordsField = (EditText) view.findViewById(R.id.user_data_keywords_field);
-        final EditText customDataField = (EditText) view.findViewById(R.id.custom_data_field);
+        final TextView descriptionView = view.findViewById(R.id.description);
+        final TextView adUnitIdView = view.findViewById(R.id.ad_unit_id);
+        final Button loadButton = view.findViewById(R.id.load_button);
+        final Button showButton = view.findViewById(R.id.show_button);
+        final Button changeAdSizeButton = view.findViewById(R.id.ad_size_button);
+        final EditText keywordsField = view.findViewById(R.id.keywords_field);
+        final EditText userDataKeywordsField = view.findViewById(R.id.user_data_keywords_field);
+        final EditText customDataField = view.findViewById(R.id.custom_data_field);
+        final TextView adSizeInfoView = view.findViewById(R.id.ad_size_info);
 
-        return new DetailFragmentViewHolder(descriptionView, adUnitIdView, loadButton, showButton,
-                keywordsField, userDataKeywordsField, customDataField);
+        return new DetailFragmentViewHolder(descriptionView,
+                adUnitIdView,
+                loadButton,
+                showButton,
+                changeAdSizeButton,
+                keywordsField,
+                userDataKeywordsField,
+                customDataField,
+                adSizeInfoView);
     }
 }

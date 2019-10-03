@@ -24,7 +24,7 @@ apply plugin: 'com.android.application'
 
 project.group = 'com.mopub'
 project.description = '''MoPub Sample App'''
-project.version = '5.9.0'
+project.version = '5.9.1'
 
 android {
     compileSdkVersion 29
@@ -36,7 +36,7 @@ android {
     }
 
     defaultConfig {
-        versionCode 72
+        versionCode 73
         versionName version
         minSdkVersion 16
         targetSdkVersion 29

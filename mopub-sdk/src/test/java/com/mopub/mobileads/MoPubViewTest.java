@@ -7,7 +7,9 @@ package com.mopub.mobileads;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.mopub.common.test.support.SdkTestRunner;
@@ -30,9 +32,12 @@ import java.util.Map;
 import static com.mopub.mobileads.MoPubErrorCode.ADAPTER_NOT_FOUND;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SdkTestRunner.class)
 @Config(shadows = {ShadowReflection.class})
@@ -41,11 +46,11 @@ public class MoPubViewTest {
     private Map<String,String> paramsMap = new HashMap<String, String>();
     private CustomEventBannerAdapter customEventBannerAdapter;
     private AdViewController adViewController;
-    private Context context;
+    private Activity context;
 
     @Before
     public void setup() {
-        context = Robolectric.buildActivity(Activity.class).create().get();
+        context = spy(Robolectric.buildActivity(Activity.class).create().get());
         subject = new MoPubView(context);
         customEventBannerAdapter = TestCustomEventBannerAdapterFactory.getSingletonMock();
         reset(customEventBannerAdapter);
@@ -257,9 +262,78 @@ public class MoPubViewTest {
     }
 
     @Test
-    public void loadAd_withRequestedAdSize_shouldSetRequestedAdSize() throws Exception {
-        final Point point = new Point(0, MoPubView.MoPubAdSize.HEIGHT_50.toInt());
-        subject.loadAd(MoPubView.MoPubAdSize.HEIGHT_50);
+    public void loadAd_withAdSize50Height_withFhdScreen_withDensityOf1_shouldResolveWithHeight50() {
+        final float density = 1.0f;
+        final MoPubView.MoPubAdSize adSize = MoPubView.MoPubAdSize.HEIGHT_50;
+
+        // Set the expected screen dimensions
+        final Resources spyResources = spy(context.getResources());
+        final DisplayMetrics mockDisplayMetrics = mock(DisplayMetrics.class);
+        mockDisplayMetrics.widthPixels = 1080;
+        mockDisplayMetrics.heightPixels = 1920;
+        mockDisplayMetrics.density = density;
+        when(spyResources.getDisplayMetrics()).thenReturn(mockDisplayMetrics);
+        when(context.getResources()).thenReturn(spyResources);
+
+        final Point point = new Point(0, (int)(adSize.toInt() * density));
+        subject.loadAd(adSize);
+        verify(adViewController).setRequestedAdSize(point);
+    }
+
+    @Test
+    public void loadAd_withAdSize90Height_withFhdScreen_withDensityOf1_shouldResolveWithHeight90() {
+        final float density = 1.0f;
+        final MoPubView.MoPubAdSize adSize = MoPubView.MoPubAdSize.HEIGHT_90;
+
+        // Set the expected screen dimensions
+        final Resources spyResources = spy(context.getResources());
+        final DisplayMetrics mockDisplayMetrics = mock(DisplayMetrics.class);
+        mockDisplayMetrics.widthPixels = 1080;
+        mockDisplayMetrics.heightPixels = 1920;
+        mockDisplayMetrics.density = density;
+        when(spyResources.getDisplayMetrics()).thenReturn(mockDisplayMetrics);
+        when(context.getResources()).thenReturn(spyResources);
+
+        final Point point = new Point(0, (int)(adSize.toInt() * density));
+        subject.loadAd(adSize);
+        verify(adViewController).setRequestedAdSize(point);
+    }
+
+    @Test
+    public void loadAd_withAdSize250Height_withFhdScreen_withDensityOf2_shouldResolveWithHeight500() {
+        final float density = 2.0f;
+        final MoPubView.MoPubAdSize adSize = MoPubView.MoPubAdSize.HEIGHT_250;
+
+        // Set the expected screen dimensions
+        final Resources spyResources = spy(context.getResources());
+        final DisplayMetrics mockDisplayMetrics = mock(DisplayMetrics.class);
+        mockDisplayMetrics.widthPixels = 1080;
+        mockDisplayMetrics.heightPixels = 1920;
+        mockDisplayMetrics.density = density;
+        when(spyResources.getDisplayMetrics()).thenReturn(mockDisplayMetrics);
+        when(context.getResources()).thenReturn(spyResources);
+
+        final Point point = new Point(0, (int)(adSize.toInt() * density));
+        subject.loadAd(adSize);
+        verify(adViewController).setRequestedAdSize(point);
+    }
+
+    @Test
+    public void loadAd_withAdSize280Height_withFhdScreen_withDensityOf3_shouldResolveWithHeight840() {
+        final float density = 3.0f;
+        final MoPubView.MoPubAdSize adSize = MoPubView.MoPubAdSize.HEIGHT_280;
+
+        // Set the expected screen dimensions
+        final Resources spyResources = spy(context.getResources());
+        final DisplayMetrics mockDisplayMetrics = mock(DisplayMetrics.class);
+        mockDisplayMetrics.widthPixels = 1080;
+        mockDisplayMetrics.heightPixels = 1920;
+        mockDisplayMetrics.density = density;
+        when(spyResources.getDisplayMetrics()).thenReturn(mockDisplayMetrics);
+        when(context.getResources()).thenReturn(spyResources);
+
+        final Point point = new Point(0, (int)(adSize.toInt() * density));
+        subject.loadAd(adSize);
         verify(adViewController).setRequestedAdSize(point);
     }
 

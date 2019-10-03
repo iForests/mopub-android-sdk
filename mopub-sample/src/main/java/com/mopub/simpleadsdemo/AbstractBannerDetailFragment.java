@@ -4,22 +4,39 @@
 
 package com.mopub.simpleadsdemo;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static android.view.View.GONE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.mopub.mobileads.MoPubView.BannerAdListener;
 import static com.mopub.simpleadsdemo.Utils.hideSoftKeyboard;
 import static com.mopub.simpleadsdemo.Utils.logToast;
@@ -32,11 +49,17 @@ import static com.mopub.simpleadsdemo.Utils.logToast;
  * display the ad.
  */
 public abstract class AbstractBannerDetailFragment extends Fragment implements BannerAdListener {
-    private MoPubView mMoPubView;
+    @Nullable private MoPubView mMoPubView;
     private MoPubSampleAdUnit mMoPubSampleAdUnit;
+    private DetailFragmentViewHolder mViewHolder;
     @Nullable private CallbacksAdapter mCallbacksAdapter;
 
     public abstract MoPubView.MoPubAdSize getAdSize();
+    protected MoPubAdSizeSettings mMoPubAdSizeSettings;
+
+    private static final List<MoPubView.MoPubAdSize> mAdSizes = Arrays.asList(MoPubView.MoPubAdSize.values());
+    private static final List<String> mAdDimensionStrings =
+            Arrays.asList("MATCH_PARENT", "WRAP_CONTENT", "EXACT");
 
     private enum BannerCallbacks {
         LOADED("onBannerLoaded"),
@@ -59,6 +82,46 @@ public abstract class AbstractBannerDetailFragment extends Fragment implements B
         }
     }
 
+    private static class MoPubAdSizeSettings {
+        MoPubView.MoPubAdSize adSize;
+        int width;
+        int height;
+
+        private static final String DETAIL_STRING = "MoPub Ad Size:\nadSize=%s\nw=%s\nh=%s";
+
+        MoPubAdSizeSettings(MoPubView.MoPubAdSize adSize,
+                                   int width,
+                                   int height) {
+            this.adSize = adSize;
+            this.width = width;
+            this.height = height;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format(DETAIL_STRING,
+                    getAdSizeString(),
+                    getDimensionString(width),
+                    getDimensionString(height));
+        }
+
+        private String getAdSizeString() {
+            return (adSize != null) ? adSize.toString() : null;
+        }
+
+        private String getDimensionString(int dimension) {
+            switch (dimension) {
+                case MATCH_PARENT:
+                    return "MATCH_PARENT";
+                case WRAP_CONTENT:
+                    return "WRAP_CONTENT";
+                default:
+                    return "" + dimension;
+            }
+        }
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -70,27 +133,32 @@ public abstract class AbstractBannerDetailFragment extends Fragment implements B
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         final View view = inflater.inflate(R.layout.banner_detail_fragment, container, false);
-        final DetailFragmentViewHolder views = DetailFragmentViewHolder.fromView(view);
+        mViewHolder = DetailFragmentViewHolder.fromView(view);
 
         mMoPubSampleAdUnit = MoPubSampleAdUnit.fromBundle(getArguments());
         mMoPubView = (MoPubView) view.findViewById(R.id.banner_mopubview);
-        LinearLayout.LayoutParams layoutParams =
+        final LinearLayout.LayoutParams layoutParams =
                 (LinearLayout.LayoutParams) mMoPubView.getLayoutParams();
         mMoPubView.setLayoutParams(layoutParams);
         mMoPubView.setAdSize(getAdSize());
 
-        views.mKeywordsField.setText(getArguments().getString(MoPubListFragment.KEYWORDS_KEY, ""));
-        views.mUserDataKeywordsField.setText(getArguments().getString(MoPubListFragment.USER_DATA_KEYWORDS_KEY, ""));
-        hideSoftKeyboard(views.mKeywordsField);
+        mMoPubAdSizeSettings = new MoPubAdSizeSettings(mMoPubView.getAdSize(),
+                layoutParams.width,
+                layoutParams.height);
+        mViewHolder.mAdSizeInfoView.setText(mMoPubAdSizeSettings.toString());
+
+        mViewHolder.mKeywordsField.setText(getArguments().getString(MoPubListFragment.KEYWORDS_KEY, ""));
+        mViewHolder.mUserDataKeywordsField.setText(getArguments().getString(MoPubListFragment.USER_DATA_KEYWORDS_KEY, ""));
+        hideSoftKeyboard(mViewHolder.mKeywordsField);
 
         final String adUnitId = mMoPubSampleAdUnit.getAdUnitId();
-        views.mDescriptionView.setText(mMoPubSampleAdUnit.getDescription());
-        views.mAdUnitIdView.setText(adUnitId);
-        views.mLoadButton.setOnClickListener(new View.OnClickListener() {
+        mViewHolder.mDescriptionView.setText(mMoPubSampleAdUnit.getDescription());
+        mViewHolder.mAdUnitIdView.setText(adUnitId);
+        mViewHolder.mLoadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String keywords = views.mKeywordsField.getText().toString();
-                final String userDataKeywords = views.mUserDataKeywordsField.getText().toString();
+                final String keywords = mViewHolder.mKeywordsField.getText().toString();
+                final String userDataKeywords = mViewHolder.mUserDataKeywordsField.getText().toString();
                 setupMoPubView(adUnitId, keywords, userDataKeywords);
                 mMoPubView.loadAd();
             }
@@ -104,6 +172,13 @@ public abstract class AbstractBannerDetailFragment extends Fragment implements B
             mCallbacksAdapter.generateCallbackList(BannerCallbacks.class);
             callbacksView.setAdapter(mCallbacksAdapter);
         }
+
+        mViewHolder.mChangeAdSizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onAdSizeClicked();
+            }
+        });
 
         mMoPubView.setBannerAdListener(this);
         setupMoPubView(adUnitId, null, null);
@@ -182,5 +257,226 @@ public abstract class AbstractBannerDetailFragment extends Fragment implements B
             return;
         }
         mCallbacksAdapter.notifyCallbackCalled(BannerCallbacks.COLLAPSED.toString());
+    }
+
+    private void onAdSizeClicked() {
+        final MoPubAdSizeFragment dialogFragment = MoPubAdSizeFragment.newInstance(mMoPubAdSizeSettings);
+        dialogFragment.setTargetFragment(this, 0);
+        dialogFragment.show(getActivity().getSupportFragmentManager(), "adSize");
+    }
+
+    private void onAdSizeSettingsChanged(final MoPubAdSizeSettings moPubAdSizeSettings) {
+        mMoPubAdSizeSettings = moPubAdSizeSettings;
+
+        float density = getResources().getDisplayMetrics().density;
+
+        ViewGroup.LayoutParams params = mMoPubView.getLayoutParams();
+        params.height = (int) (mMoPubAdSizeSettings.height * density);
+        params.width = (int) (mMoPubAdSizeSettings.width * density);
+        mMoPubView.setLayoutParams(params);
+
+        mMoPubView.setAdSize(mMoPubAdSizeSettings.adSize);
+        mViewHolder.mAdSizeInfoView.setText(mMoPubAdSizeSettings.toString());
+    }
+
+    public static class MoPubAdSizeFragment extends DialogFragment {
+        @Nullable Spinner adSizeSpinner;
+        @Nullable Spinner adWidthSpinner;
+        @Nullable Spinner adHeightSpinner;
+
+        @Nullable EditText adWidthEditText;
+        @Nullable EditText adHeightEditText;
+
+        MoPubAdSizeSettings adSizeSettings;
+
+        static AbstractBannerDetailFragment.MoPubAdSizeFragment newInstance(@NonNull final MoPubAdSizeSettings adSizeSettings) {
+            final AbstractBannerDetailFragment.MoPubAdSizeFragment fragment =
+                    new AbstractBannerDetailFragment.MoPubAdSizeFragment();
+            fragment.adSizeSettings = adSizeSettings;
+            return fragment;
+        }
+
+        @Override
+        @NonNull
+        public Dialog onCreateDialog(final Bundle savedInstanceState) {
+            AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                    .setTitle("Set MoPubAdSize")
+                    .setPositiveButton("Save MoPubAdSize", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialogInterface, final int i) {
+                            ((AbstractBannerDetailFragment) getTargetFragment())
+                                    .onAdSizeSettingsChanged(adSizeSettings);
+                            dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialogInterface, final int i) {
+                            dismiss();
+                        }
+                    })
+                    .setCancelable(true)
+                    .create();
+
+            // Inflate and add our custom layout to the dialog.
+            final View view = dialog.getLayoutInflater()
+                    .inflate(R.layout.ad_size_dialog, null);
+
+            adSizeSpinner = view.findViewById(R.id.ad_size_spinner);
+            adWidthSpinner = view.findViewById(R.id.ad_size_width_spinner);
+            adHeightSpinner = view.findViewById(R.id.ad_size_height_spinner);
+
+            adWidthEditText = view.findViewById(R.id.ad_size_width_edit_text);
+            adHeightEditText = view.findViewById(R.id.ad_size_height_edit_text);
+
+            final List<String> adSizeStrings = new ArrayList<>(mAdSizes.size());
+
+            for (final MoPubView.MoPubAdSize adSize : mAdSizes) {
+                adSizeStrings.add(adSize.name());
+            }
+
+            final ArrayAdapter dimensionArrayAdapter = new ArrayAdapter<>(getActivity(),
+                    android.R.layout.simple_spinner_dropdown_item,
+                    android.R.id.text1,
+                    mAdDimensionStrings);
+
+            adWidthEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    try {
+                        adSizeSettings.width = Integer.parseInt(editable.toString());
+                    } catch (Exception e) {
+                        // Couldn't parse. Likely from a backspace or illegal character.
+                    }
+                }
+            });
+
+            adHeightEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    try {
+                        adSizeSettings.height = Integer.parseInt(editable.toString());
+                    } catch (Exception e) {
+                        // Couldn't parse. Likely from a backspace or illegal character.
+                    }
+                }
+            });
+
+            final AdapterView.OnItemSelectedListener adSizeSelectionListener =
+                    new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            adSizeSettings.adSize = MoPubView.MoPubAdSize.valueOf((String) adapterView.getSelectedItem());
+
+                            updateViews();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+                            // STUB
+                        }
+                    };
+
+            final AdapterView.OnItemSelectedListener adWidthSelectionListener =
+                    new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            if(mAdDimensionStrings.get(0).equals(adapterView.getSelectedItem())) { // "MATCH_PARENT"
+                                adSizeSettings.width = MATCH_PARENT;
+                            } else if(mAdDimensionStrings.get(1).equals(adapterView.getSelectedItem())) { // "WRAP_CONTENT"
+                                adSizeSettings.width = WRAP_CONTENT;
+                            } else if (adSizeSettings.width < 0) {
+                                adSizeSettings.width = 0;
+                            }
+
+                            updateViews();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+                            // STUB
+                        }
+                    };
+
+            final AdapterView.OnItemSelectedListener adHeightSelectionListener =
+                    new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            if(mAdDimensionStrings.get(0).equals(adapterView.getSelectedItem())) { // "MATCH_PARENT"
+                                adSizeSettings.height = MATCH_PARENT;
+                            } else if(mAdDimensionStrings.get(1).equals(adapterView.getSelectedItem())) { // "WRAP_CONTENT"
+                                adSizeSettings.height = WRAP_CONTENT;
+                            } else if (adSizeSettings.height < 0) {
+                                adSizeSettings.height = 0;
+                            }
+
+                            updateViews();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+                            // STUB
+                        }
+                    };
+
+            adSizeSpinner.setAdapter(new ArrayAdapter<>(getActivity(),
+                    android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, adSizeStrings));
+            adSizeSpinner.setOnItemSelectedListener(adSizeSelectionListener);
+
+            adWidthSpinner.setAdapter(dimensionArrayAdapter);
+            adWidthSpinner.setOnItemSelectedListener(adWidthSelectionListener);
+
+            adHeightSpinner.setAdapter(dimensionArrayAdapter);
+            adHeightSpinner.setOnItemSelectedListener(adHeightSelectionListener);
+
+            updateViews();
+
+            dialog.setView(view);
+            return dialog;
+        }
+
+        private void updateViews() {
+            // MoPubAdSize
+            adSizeSpinner.setSelection(mAdSizes.indexOf(adSizeSettings.adSize));
+
+            // View Width
+            if (adSizeSettings.width == MATCH_PARENT) {
+                adWidthEditText.setVisibility(GONE);
+                adWidthSpinner.setSelection(0); // "MATCH_PARENT"
+            } else if (adSizeSettings.width == WRAP_CONTENT) {
+                adWidthEditText.setVisibility(GONE);
+                adWidthSpinner.setSelection(1); // "WRAP_CONTENT"
+            } else {
+                adWidthEditText.setVisibility(View.VISIBLE);
+                adWidthSpinner.setSelection(2); // "EXACT"
+                adWidthEditText.setText("" + adSizeSettings.width);
+            }
+
+            // View Height
+            if (adSizeSettings.height == MATCH_PARENT) {
+                adHeightEditText.setVisibility(GONE);
+                adHeightSpinner.setSelection(0); // "MATCH_PARENT"
+            } else if (adSizeSettings.height == WRAP_CONTENT) {
+                adHeightEditText.setVisibility(GONE);
+                adHeightSpinner.setSelection(1); // "WRAP_CONTENT"
+            } else {
+                adHeightEditText.setVisibility(View.VISIBLE);
+                adHeightSpinner.setSelection(2); // "EXACT"
+                adHeightEditText.setText("" + adSizeSettings.height);
+            }
+
+        }
     }
 }

@@ -4,6 +4,12 @@
     <string name="app_title">MoPub Sample App</string>
     <string name="keywords">Keywords (optional)</string>
     <string name="user_data_keywords">User Data Keywords (optional)</string>
+    <string name="ad_size_label">MoPub Ad Size</string>
+    <string name="ad_size_detail_empty_text">MoPub Ad Size Details</string>
+    <string name="ad_size_change_button">Change Ad Size</string>
+    <string name="ad_size_width_label">Width</string>
+    <string name="ad_size_height_label">Height</string>
+    <string name="ad_size_dp_hint">In dips</string>
     <string name="custom_data">Custom Data (optional)</string>
     <string name="load_ad">Load Ad</string>
     <string name="refresh_ad">Refresh Ad</string>

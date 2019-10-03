@@ -412,7 +412,8 @@ public class MoPubView extends FrameLayout {
 
         // MoPubAdSize only applies to height
         if (mMoPubAdSize != MoPubAdSize.MATCH_VIEW) {
-            resolvedAdSize.y = mMoPubAdSize.toInt();
+            final float density = mContext.getResources().getDisplayMetrics().density;
+            resolvedAdSize.y = (int) (mMoPubAdSize.toInt() * density);
         } else if (getParent() != null && layoutParams != null && layoutParams.height < 0) {
             resolvedAdSize.y = ((View) getParent()).getHeight();
         }

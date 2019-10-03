@@ -1,3 +1,7 @@
+## Version 5.9.1 (September 23, 2019)
+- **Bug Fixes**
+  - Now sends ad width in pixels instead of dips when setting a `MoPubAdSize`.
+
 ## Version 5.9.0 (September 16, 2019)
 - **Features**
   - Certified against Android 10.

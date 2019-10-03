@@ -37,7 +37,7 @@ The MoPub SDK is available via:
     }
 
     dependencies {
-        implementation('com.mopub:mopub-sdk:5.9.0@aar') {
+        implementation('com.mopub:mopub-sdk:5.9.1@aar') {
             transitive = true
         }
     }
@@ -59,27 +59,27 @@ The MoPub SDK is available via:
         // ... other project dependencies
 
         // For banners
-        implementation('com.mopub:mopub-sdk-banner:5.9.0@aar') {
+        implementation('com.mopub:mopub-sdk-banner:5.9.1@aar') {
             transitive = true
         }
         
         // For interstitials
-        implementation('com.mopub:mopub-sdk-interstitial:5.9.0@aar') {
+        implementation('com.mopub:mopub-sdk-interstitial:5.9.1@aar') {
             transitive = true
         }
 
         // For rewarded videos. This will automatically also include interstitials
-        implementation('com.mopub:mopub-sdk-rewardedvideo:5.9.0@aar') {
+        implementation('com.mopub:mopub-sdk-rewardedvideo:5.9.1@aar') {
             transitive = true
         }
 
         // For native static (images).
-        implementation('com.mopub:mopub-sdk-native-static:5.9.0@aar') {
+        implementation('com.mopub:mopub-sdk-native-static:5.9.1@aar') {
             transitive = true
         }
 
         // For native video. This will automatically also include native static
-        implementation('com.mopub:mopub-sdk-native-video:5.9.0@aar') {
+        implementation('com.mopub:mopub-sdk-native-video:5.9.1@aar') {
             transitive = true
         }
     }
@@ -107,16 +107,8 @@ The MoPub SDK is available via:
 ## New in this Version
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for a complete list of additions, fixes, and enhancements in the latest release.
 
-- **Features**
-  - Certified against Android 10.
-  - Removed support for `tel`, `sms`, `createCalendarEvent`, and `storePicture` functions for MRAID ads.
-  - Upgraded ExoPlayer to 2.10.3.
-  - Migrated to AndroidX. See [https://developer.android.com/jetpack/androidx/migrate] for more information.
-  - Upgraded `targetSdkVersion` and `compileSdkVersion` to 29.
-
 - **Bug Fixes**
-  - SDK location is now prioritized over publisher-specified location.
-  - Fixed a rare crash when layout params are available but the parent view is null.
+  - Now sends ad width in pixels instead of dips when setting a `MoPubAdSize`.
 
 ## Requirements
 
@@ -145,7 +137,7 @@ Normally, to add the MoPub SDK to your app via JCenter, your `build.gradle` woul
 
 ```	
 dependencies {
-    implementation('com.mopub:mopub-sdk:5.9.0@aar') {
+    implementation('com.mopub:mopub-sdk:5.9.1@aar') {
         transitive = true
     }
 }
@@ -154,7 +146,7 @@ Update to the following to exclude one or both viewability vendors:
 
 ```
 dependencies {
-    implementation('com.mopub:mopub-sdk:5.9.0@aar') {
+    implementation('com.mopub:mopub-sdk:5.9.1@aar') {
         transitive = true
         exclude module: 'libAvid-mopub' // To exclude AVID
         exclude module: 'moat-mobile-app-kit' // To exclude Moat
@@ -191,4 +183,4 @@ If your app's target SDK is 23 or higher _**and**_ the user's device is running 
 
 ## License
 
-We have launched a new license as of version 3.2.0. To view the full license, visit [http://www.mopub.com/legal/sdk-license-agreement/](http://www.mopub.com/legal/sdk-license-agreement/).
+To view the full license, visit [http://www.mopub.com/legal/sdk-license-agreement/](http://www.mopub.com/legal/sdk-license-agreement/).
