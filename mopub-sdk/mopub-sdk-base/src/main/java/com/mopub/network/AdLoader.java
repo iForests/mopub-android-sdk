@@ -6,6 +6,7 @@ package com.mopub.network;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -23,6 +24,7 @@ import com.mopub.volley.VolleyError;
 
 import java.lang.ref.WeakReference;
 
+import static com.mopub.common.MoPub.AD_STREAM_REVENUE_DATA;
 import static com.mopub.common.logging.MoPubLog.AdLogEvent.CUSTOM;
 import static com.mopub.common.logging.MoPubLog.AdLogEvent.REQUESTED;
 import static com.mopub.common.logging.MoPubLog.AdLogEvent.RESPONSE_RECEIVED;
@@ -52,6 +54,9 @@ public class AdLoader {
     protected AdResponse mLastDeliveredResponse = null;
     @Nullable
     private ContentDownloadAnalytics mDownloadTracker;
+
+    @Nullable
+    private SharedPreferences mAdStreamSharedPreferences;
 
     private volatile boolean mRunning;
     private volatile boolean mFailed;
@@ -317,6 +322,17 @@ public class AdLoader {
         Context context = mContext.get();
         mDownloadTracker = new ContentDownloadAnalytics(adResponse);
         mDownloadTracker.reportBeforeLoad(context);
+
+        if (context != null) {
+            ImpressionData impressionData = adResponse.getImpressionData();
+            String adUnitId = impressionData.getAdUnitId();
+            Double revenue = impressionData.getPublisherRevenue();
+
+            if (mAdStreamSharedPreferences == null) {
+                mAdStreamSharedPreferences = context.getSharedPreferences(AD_STREAM_REVENUE_DATA, Context.MODE_PRIVATE);
+            }
+            mAdStreamSharedPreferences.edit().putFloat(adUnitId, revenue.floatValue()).apply();
+        }
 
         if (mOriginalListener != null) {
             mLastDeliveredResponse = adResponse;
