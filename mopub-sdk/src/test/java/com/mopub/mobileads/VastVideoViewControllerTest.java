@@ -7,7 +7,6 @@ package com.mopub.mobileads;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -55,6 +54,8 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 
+import kotlin.UninitializedPropertyAccessException;
+
 import static com.mopub.common.DataKeys.AD_DATA_KEY;
 import static com.mopub.common.IntentActions.ACTION_FULLSCREEN_DISMISS;
 import static com.mopub.common.IntentActions.ACTION_FULLSCREEN_FAIL;
@@ -95,11 +96,9 @@ public class VastVideoViewControllerTest {
     private static final String COMPANION_IMAGE_URL = "companion_image_url";
     private static final String COMPANION_CLICK_TRACKING_URL_1 = "companion_click_tracking_url_1";
     private static final String COMPANION_CLICK_TRACKING_URL_2 = "companion_click_tracking_url_2";
-    private static final String COMPANION_CLICK_TRACKING_URL_3 = "companion_click_tracking_url_3";
     private static final String COMPANION_CLICK_DESTINATION_URL = "https://companion_click_destination_url";
     private static final String COMPANION_CREATIVE_VIEW_URL_1 = "companion_creative_view_url_1";
     private static final String COMPANION_CREATIVE_VIEW_URL_2 = "companion_creative_view_url_2";
-    private static final String COMPANION_CREATIVE_VIEW_URL_3 = "companion_creative_view_url_3";
     private static final String RESOLVED_CLICKTHROUGH_URL = "https://www.mopub.com/en";
     private static final String CLICKTHROUGH_URL = "deeplink+://navigate?" +
             "&primaryUrl=bogus%3A%2F%2Furl" +
@@ -116,6 +115,7 @@ public class VastVideoViewControllerTest {
     private long testBroadcastIdentifier;
     private VastVideoViewController subject;
     private int expectedBrowserRequestCode;
+    private VastVideoConfig vastVideoConfig;
     private String expectedUserAgent;
 
     @Mock
@@ -126,8 +126,6 @@ public class VastVideoViewControllerTest {
     MoPubRequestQueue mockRequestQueue;
     @Mock
     MaxWidthImageLoader mockImageLoader;
-    @Mock
-    private Bitmap mockBitmap;
     @Mock
     private ExternalViewabilitySessionManager mockExternalViewabilityManager;
 
@@ -144,7 +142,7 @@ public class VastVideoViewControllerTest {
         savedInstanceState = new Bundle();
         testBroadcastIdentifier = 1111;
 
-        VastVideoConfig vastVideoConfig = new VastVideoConfig();
+        vastVideoConfig = new VastVideoConfig();
         vastVideoConfig.setNetworkMediaFileUrl("video_url");
         vastVideoConfig.setDiskMediaFileUrl("disk_video_path");
         vastVideoConfig.setDspCreativeId("dsp_creative_id");
@@ -236,7 +234,6 @@ public class VastVideoViewControllerTest {
         verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getProgressBarWidget(), ViewabilityObstruction.PROGRESS_BAR);
         verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getBottomGradientStripWidget(), ViewabilityObstruction.OVERLAY);
         verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getRadialCountdownWidget(), ViewabilityObstruction.COUNTDOWN_TIMER);
-        verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getIconView(), ViewabilityObstruction.INDUSTRY_ICON);
         verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getCtaButtonWidget(), ViewabilityObstruction.CTA_BUTTON);
         verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getCloseButtonWidget(), ViewabilityObstruction.CLOSE_BUTTON);
     }
@@ -274,16 +271,6 @@ public class VastVideoViewControllerTest {
         assertThat(radialCountdownWidget.getVisibility()).isEqualTo(View.INVISIBLE);
         ShadowView radialCountdownWidgetShadow = shadowOf(radialCountdownWidget);
         assertThat(radialCountdownWidgetShadow.getOnTouchListener()).isNotNull();
-    }
-
-    @Test
-    public void constructor_shouldAddIconViewToLayoutAndSetInvisibleWithWebViewClickListener() throws Exception {
-        initializeSubject();
-
-        View iconView = subject.getIconView();
-        assertThat(iconView.getParent()).isEqualTo(subject.getLayout());
-        assertThat(iconView.getVisibility()).isEqualTo(View.INVISIBLE);
-        assertThat(((VastWebView) iconView).getVastWebViewClickListener()).isNotNull();
     }
 
     @Test
@@ -526,18 +513,6 @@ public class VastVideoViewControllerTest {
 
         final MediaPlayer mockMediaPlayer = TestMediaPlayerFactory.Companion.getMockMediaPlayer();
         verify(mockMediaPlayer).seekTo(eq(123l), eq(MediaPlayer.SEEK_CLOSEST));
-    }
-
-    @Test
-    public void constructor_shouldCreateLayoutAndReturnInvisibleVastIconView() throws Exception {
-        initializeSubject();
-
-        VastWebView view = (VastWebView) ReflectionUtils.getValueIncludingSuperclasses("iconView", subject);
-
-        assertThat(view).isNotNull();
-        assertThat(view.getVisibility()).isEqualTo(View.INVISIBLE);
-        assertThat(view.getVastWebViewClickListener()).isNotNull();
-        assertThat((VastWebView) subject.getLayout().findViewById(view.getId())).isEqualTo(view);
     }
 
     @Test
@@ -1070,6 +1045,92 @@ public class VastVideoViewControllerTest {
 
         assertThat(subject.getVastVideoConfig().getSkipOffset()).isNotEmpty();
         assertThat(subject.getShowCloseButtonDelay()).isEqualTo(DEFAULT_VIDEO_DURATION_FOR_CLOSE_BUTTON);
+    }
+
+    @Test
+    public void onPrepared_whenRewarded_withCompanion_shouldSetShowCloseButtonDelayToAdDataDuration() throws Exception {
+        final VastVideoConfig vastVideoConfig = new VastVideoConfig();
+        vastVideoConfig.setDiskMediaFileUrl("disk_video_path");
+        final VastCompanionAdConfig companionAdConfig = new VastCompanionAdConfig(
+                300,
+                250,
+                new VastResource(COMPANION_IMAGE_URL,
+                        VastResource.Type.STATIC_RESOURCE,
+                        VastResource.CreativeType.IMAGE, 300, 250),
+                COMPANION_CLICK_DESTINATION_URL,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                null
+        );
+        vastVideoConfig.addVastCompanionAdConfig(companionAdConfig);
+        vastVideoConfig.setSkipOffset("00:00:05");
+        vastVideoConfig.setRewarded(true);
+        final int expectedCloseDurationSeconds = 30;
+
+        final AdData currentAdData = bundle.getParcelable(AD_DATA_KEY);
+        final AdData newAdData = new AdData.Builder().fromAdData(currentAdData)
+                .vastVideoConfig(vastVideoConfig.toJsonString())
+                .rewardedDurationSeconds(expectedCloseDurationSeconds)
+                .isRewarded(true)
+                .build();
+        bundle.putParcelable(AD_DATA_KEY, newAdData);
+
+        initializeSubject();
+        setVideoViewParams(0, 20000);    // 20s long video
+
+        final MediaPlayer mockMediaPlayer = TestMediaPlayerFactory.Companion.getMockMediaPlayer();
+        mockMediaPlayer.prepare().isDone();
+
+        assertThat(subject.getShowCloseButtonDelay()).isEqualTo(expectedCloseDurationSeconds * 1000);
+    }
+
+    @Test
+    public void onPrepared_whenRewarded_withVideoLengthShorterThanRewardedDuration_withNoCompanion_shouldSetShowCloseButtonDelayToVideoDuration() throws Exception {
+        final VastVideoConfig vastVideoConfig = new VastVideoConfig();
+        vastVideoConfig.setDiskMediaFileUrl("disk_video_path");
+        vastVideoConfig.setSkipOffset("00:00:05");
+        vastVideoConfig.setRewarded(true);
+
+        final AdData currentAdData = bundle.getParcelable(AD_DATA_KEY);
+        final AdData newAdData = new AdData.Builder().fromAdData(currentAdData)
+                .vastVideoConfig(vastVideoConfig.toJsonString())
+                .rewardedDurationSeconds(30)
+                .isRewarded(true)
+                .build();
+        bundle.putParcelable(AD_DATA_KEY, newAdData);
+
+        initializeSubject();
+        setVideoViewParams(0, 20000);    // 20s long video
+
+        final MediaPlayer mockMediaPlayer = TestMediaPlayerFactory.Companion.getMockMediaPlayer();
+        mockMediaPlayer.prepare().isDone();
+
+        assertThat(subject.getShowCloseButtonDelay()).isEqualTo(20000);
+    }
+
+    @Test
+    public void onPrepared_whenRewarded_withVideoLengthLongerThanRewardedDuration_withNoCompanion_shouldSetShowCloseButtonDelayToAdDataDuration() throws Exception {
+        final VastVideoConfig vastVideoConfig = new VastVideoConfig();
+        vastVideoConfig.setDiskMediaFileUrl("disk_video_path");
+        vastVideoConfig.setSkipOffset("00:00:05");
+        vastVideoConfig.setRewarded(true);
+        final int expectedCloseDurationSeconds = 30;
+
+        final AdData currentAdData = bundle.getParcelable(AD_DATA_KEY);
+        final AdData newAdData = new AdData.Builder().fromAdData(currentAdData)
+                .vastVideoConfig(vastVideoConfig.toJsonString())
+                .rewardedDurationSeconds(expectedCloseDurationSeconds)
+                .isRewarded(true)
+                .build();
+        bundle.putParcelable(AD_DATA_KEY, newAdData);
+
+        initializeSubject();
+        setVideoViewParams(0, 35000);    // 35s long video
+
+        final MediaPlayer mockMediaPlayer = TestMediaPlayerFactory.Companion.getMockMediaPlayer();
+        mockMediaPlayer.prepare().isDone();
+
+        assertThat(subject.getShowCloseButtonDelay()).isEqualTo(expectedCloseDurationSeconds * 1000);
     }
 
     @Test
@@ -2059,22 +2120,23 @@ public class VastVideoViewControllerTest {
         when(mockVastResource.getType()).thenReturn(VastResource.Type.STATIC_RESOURCE);
         when(mockVastResource.getResource()).thenReturn("static");
         when(mockVastIconConfig.getVastResource()).thenReturn(mockVastResource);
-
         ReflectionUtils.setVariableValueInObject(subject, "vastIconConfig", mockVastIconConfig);
-
+        subject.handleIconDisplay(5000);
         VastWebView view = (VastWebView) ReflectionUtils.getValueIncludingSuperclasses("iconView", subject);
 
         view.getVastWebViewClickListener().onVastWebViewClick();
+
         verify(mockVastIconConfig).handleClick(any(Context.class), any(String.class), eq("dsp_creative_id"));
     }
 
     @Test
-    public void handleIconDisplay_withCurrentPositionGreaterThanOffset_shouldSetIconToVisible_shouldCallHandleImpression() throws Exception {
+    public void handleIconDisplay_withCurrentPositionEqualToOffset_shouldCreateIcon_shouldCallHandleImpression() throws Exception {
         initializeSubject();
 
         VastIconConfig mockVastIconConfig = mock(VastIconConfig.class);
         when(mockVastIconConfig.getOffsetMS()).thenReturn(0);
         when(mockVastIconConfig.getDurationMS()).thenReturn(1);
+        when(mockVastIconConfig.getVastResource()).thenReturn(vastVideoConfig.getVastIconConfig().getVastResource());
 
         ReflectionUtils.setVariableValueInObject(subject, "vastIconConfig", mockVastIconConfig);
 
@@ -2082,39 +2144,68 @@ public class VastVideoViewControllerTest {
 
         assertThat(subject.getIconView().getVisibility()).isEqualTo(View.VISIBLE);
         verify(mockVastIconConfig).handleImpression(any(Context.class), eq(0), eq("video_url"));
+        verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getIconView(), ViewabilityObstruction.INDUSTRY_ICON);
     }
 
     @Test
+    public void handleIconDisplay_withCurrentPositionGreaterThanOffsetLessThanOffsetPlusDuration_shouldCreateIcon_shouldCallHandleImpression() throws Exception {
+        initializeSubject();
+
+        VastIconConfig mockVastIconConfig = mock(VastIconConfig.class);
+        when(mockVastIconConfig.getOffsetMS()).thenReturn(10);
+        when(mockVastIconConfig.getDurationMS()).thenReturn(15);
+        when(mockVastIconConfig.getVastResource()).thenReturn(vastVideoConfig.getVastIconConfig().getVastResource());
+
+        ReflectionUtils.setVariableValueInObject(subject, "vastIconConfig", mockVastIconConfig);
+
+        subject.handleIconDisplay(20);
+
+        assertThat(subject.getIconView().getVisibility()).isEqualTo(View.VISIBLE);
+        verify(mockVastIconConfig).handleImpression(any(Context.class), eq(20), eq("video_url"));
+        verify(mockExternalViewabilityManager).registerVideoObstruction(subject.getIconView(), ViewabilityObstruction.INDUSTRY_ICON);
+    }
+
+    @Test(expected = UninitializedPropertyAccessException.class)
     public void handleIconDisplay_withCurrentPositionLessThanOffset_shouldReturn() throws Exception {
         initializeSubject();
 
         VastIconConfig mockVastIconConfig = mock(VastIconConfig.class);
         when(mockVastIconConfig.getOffsetMS()).thenReturn(1);
+        when(mockVastIconConfig.getVastResource()).thenReturn(vastVideoConfig.getVastIconConfig().getVastResource());
 
         ReflectionUtils.setVariableValueInObject(subject, "vastIconConfig", mockVastIconConfig);
 
-        VastWebView view = (VastWebView) ReflectionUtils.getValueIncludingSuperclasses("iconView", subject);
-
         subject.handleIconDisplay(0);
 
-        assertThat(subject.getIconView().getVisibility()).isEqualTo(View.INVISIBLE);
         verify(mockVastIconConfig, never()).handleImpression(any(Context.class), eq(0),
                 eq("video_url"));
+        assertThat(subject.getIconView());
     }
 
     @Test
-    public void handleIconDisplay_withCurrentPositionGreaterThanOffsetPlusDuration_shouldSetIconToINVISIBLE() throws Exception {
+    public void handleIconDisplay_withCurrentPositionGreaterThanOffsetPlusDuration_shouldSetIconToGone() throws Exception {
         initializeSubject();
-
         VastIconConfig mockVastIconConfig = mock(VastIconConfig.class);
         when(mockVastIconConfig.getOffsetMS()).thenReturn(0);
         when(mockVastIconConfig.getDurationMS()).thenReturn(1);
-
+        when(mockVastIconConfig.getVastResource()).thenReturn(vastVideoConfig.getVastIconConfig().getVastResource());
         ReflectionUtils.setVariableValueInObject(subject, "vastIconConfig", mockVastIconConfig);
 
         subject.handleIconDisplay(2);
 
         assertThat(subject.getIconView().getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void handleIconDisplay_shouldAddIconViewToLayout_shouldSetVisible_shouldSetWebViewClickListener() throws Exception {
+        initializeSubject();
+
+        subject.handleIconDisplay(5000);
+
+        View iconView = subject.getIconView();
+        assertThat(iconView.getParent()).isEqualTo(subject.getLayout());
+        assertThat(iconView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(((VastWebView) iconView).getVastWebViewClickListener()).isNotNull();
     }
 
     @Test

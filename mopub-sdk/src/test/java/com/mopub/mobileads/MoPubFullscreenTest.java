@@ -11,6 +11,7 @@ import android.os.Handler;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.mopub.common.AdType;
 import com.mopub.common.CacheServiceTest;
 import com.mopub.common.DataKeys;
 import com.mopub.common.FullAdType;
@@ -19,8 +20,10 @@ import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.common.util.Utils;
 import com.mopub.mobileads.test.support.TestVastManagerFactory;
 import com.mopub.mobileads.test.support.VastUtils;
+import com.mopub.network.Networking;
 
 import org.apache.http.HttpResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,6 +68,10 @@ public class MoPubFullscreenTest {
     private static final int REWARDED_DURATION_S = 22;
     private static final String CURRENCY_NAME = "currency_name";
     private static final int CURRENCY_AMOUNT = 10;
+    private static final String IMAGE_CLICKDESTINATION_URL = "clickdestination";
+    private static final String IMAGE_JSON =
+            "{\"image\":\"https://www.mopub.com/etc/designs/mopub-aem-twitter/public/svg/mopub.svg\"," +
+                    "\"w\":250,\"h\":200,\"clk\":\"" + IMAGE_CLICKDESTINATION_URL + "\"}";
     private long broadcastIdentifier;
     private Activity context;
     private AdData adData;
@@ -82,6 +89,7 @@ public class MoPubFullscreenTest {
 
     @Before
     public void setUp() throws Exception {
+        Networking.clearForTesting();
         broadcastIdentifier = 15243;
         mockVastManager = TestVastManagerFactory.getSingletonMock();
         moPubAd = mock(MoPubAd.class);
@@ -101,6 +109,11 @@ public class MoPubFullscreenTest {
         subject.setVastManager(mockVastManager);
         subject.mLoadListener = loadListener;
         subject.mInteractionListener = interactionListener;
+    }
+
+    @After
+    public void tearDown() {
+        Networking.clearForTesting();
     }
 
     @Test
@@ -206,7 +219,7 @@ public class MoPubFullscreenTest {
     }
 
     @Test
-    public void preRenderHtml_whenCreatingVideoCache_butItHasInitializationErrors_shouldSignalOnInterstitialFailedOnError() throws Exception {
+    public void preRenderHtml_whenCreatingVideoCache_butItHasInitializationErrors_shouldSignalOnInterstitialFailedOnError() {
         // context is null when load is not called, which causes DiskLruCache to not be created
 
         subject.preRender();
@@ -231,6 +244,18 @@ public class MoPubFullscreenTest {
 
         verify(mockVastManager).prepareVastVideoConfiguration(eq(EXPECTED_VAST_DATA),
                 eq(subject), eq(DSP_CREATIVE_ID), eq(context));
+    }
+
+    // This cannot be tested well without ability to get mock images from the ImageLoader
+    @Test
+    public void load_withJsonImage_shouldPreRenderImage() {
+        adData.setAdPayload(IMAGE_JSON);
+        adData.setFullAdType(FullAdType.JSON);
+        adData.setAdType(AdType.FULLSCREEN);
+
+        subject.load(context, adData);
+
+        // verify(loadListener).onAdLoaded();
     }
 
     @Test

@@ -157,7 +157,7 @@ public class VastResourceTest {
                 .CreativeType.IMAGE, 50, 100);
         subject.initializeWebView(mockVastWebView);
 
-        verify(mockVastWebView).loadData("resource");
+        verify(mockVastWebView).loadData("<html><head></head><body style=\"margin:0;padding:0\"><img src=\"resource\" width=\"100%\" style=\"max-width:100%;max-height:100%;\" /></body></html>");
     }
 
     @Test

@@ -31,7 +31,7 @@ import static com.mopub.common.logging.MoPubLog.SdkLogEvent.INIT_FINISHED;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.INIT_STARTED;
 
 public class MoPub {
-    public static final String SDK_VERSION = "5.16.0";
+    public static final String SDK_VERSION = "5.16.2";
 
     public enum LocationAwareness { NORMAL, TRUNCATED, DISABLED }
 

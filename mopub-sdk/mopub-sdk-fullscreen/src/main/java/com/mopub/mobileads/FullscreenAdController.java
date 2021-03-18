@@ -70,9 +70,12 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
         MraidController.UseCustomCloseListener {
 
     static final String IMAGE_KEY = "image";
-    private static final String CLICK_DESTINATION_KEY = "clk";
-    private static final String WIDTH_KEY = "w";
-    private static final String HEIGHT_KEY = "h";
+    @VisibleForTesting
+    static final String CLICK_DESTINATION_KEY = "clk";
+    @VisibleForTesting
+    static final String WIDTH_KEY = "w";
+    @VisibleForTesting
+    static final String HEIGHT_KEY = "h";
     private final static EnumSet<UrlAction> SUPPORTED_URL_ACTIONS = EnumSet.of(
             UrlAction.IGNORE_ABOUT_SCHEME,
             UrlAction.HANDLE_PHONE_SCHEME,
@@ -118,7 +121,8 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
     private boolean mRewardedCompletionFired;
     private int mVideoTimeElapsed;
 
-    private enum ControllerState {
+    @VisibleForTesting
+    enum ControllerState {
         VIDEO,
         MRAID,
         HTML,
@@ -160,7 +164,9 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
         mMoPubWebViewController.setMoPubWebViewListener(new BaseHtmlWebView.BaseWebViewListener() {
             @Override
             public void onLoaded(View view) {
-                mMoPubWebViewController.loadJavascript(WEB_VIEW_DID_APPEAR.getJavascript());
+                if (ControllerState.HTML.equals(mState) || ControllerState.MRAID.equals(mState)) {
+                    mMoPubWebViewController.loadJavascript(WEB_VIEW_DID_APPEAR.getJavascript());
+                }
             }
 
             @Override
@@ -353,6 +359,12 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
             mVideoViewController = null;
         }
 
+        // remove mImageView first to prevent IllegalStateException when added to relativeLayout
+        final ViewGroup imageViewParent = (ViewGroup) mImageView.getParent();
+        if (imageViewParent != null) {
+            imageViewParent.removeView(mImageView);
+        }
+
         mCloseableLayout.removeAllViews();
         mCloseableLayout.setOnCloseListener(() -> {
             destroy();
@@ -464,8 +476,8 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
             return;
         }
         final VastResource vastResource = mSelectedVastCompanionAdConfig.getVastResource();
-        final String resourceValue = vastResource.getResourceValue();
-        if (TextUtils.isEmpty(resourceValue)) {
+        final String htmlResourceValue = vastResource.getHtmlResourceValue();
+        if (TextUtils.isEmpty(htmlResourceValue)) {
             return;
         }
         if (VastResource.Type.STATIC_RESOURCE.equals(vastResource.getType()) &&
@@ -500,7 +512,7 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
                     new MediaMetadataRetriever(),
                     mImageView,
                     videoDurationMs);
-            AsyncTasks.safeExecuteOnExecutor(mBlurLastVideoFrameTask, resourceValue);
+            AsyncTasks.safeExecuteOnExecutor(mBlurLastVideoFrameTask, vastResource.getResource());
             if (!TextUtils.isEmpty(mSelectedVastCompanionAdConfig.getClickThroughUrl())) {
                 mVideoCtaButtonWidget = new VideoCtaButtonWidget(mActivity, false, true);
                 final String customCtaText = mSelectedVastCompanionAdConfig.getCustomCtaText();
@@ -511,7 +523,7 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
                 mVideoCtaButtonWidget.setOnClickListener(view -> onAdClicked(mActivity, mAdData));
             }
         } else {
-            mMoPubWebViewController.fillContent(resourceValue, null, null);
+            mMoPubWebViewController.fillContent(htmlResourceValue, null, null);
         }
 
     }
@@ -649,8 +661,7 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
         mCloseableLayout.addView(mRadialCountdownWidget, widgetLayoutParams);
     }
 
-    private void onAdClicked(@NonNull final Activity activity,
-                             @NonNull final AdData adData) {
+    void onAdClicked(@NonNull final Activity activity, @NonNull final AdData adData) {
         if (mSelectedVastCompanionAdConfig != null &&
                 !TextUtils.isEmpty(mSelectedVastCompanionAdConfig.getClickThroughUrl()) &&
                 ControllerState.IMAGE.equals(mState)) {
@@ -732,6 +743,13 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
 
     @Deprecated
     @VisibleForTesting
+    @Nullable
+    MoPubWebViewController getMoPubWebViewController() {
+        return mMoPubWebViewController;
+    }
+
+    @Deprecated
+    @VisibleForTesting
     int getShowCloseButtonDelayMillis() {
         return mShowCloseButtonDelayMillis;
     }
@@ -792,5 +810,47 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
     @VisibleForTesting
     void setBlurLastVideoFrameTask(@Nullable final VastVideoBlurLastVideoFrameTask blurLastVideoFrameTask) {
         mBlurLastVideoFrameTask = blurLastVideoFrameTask;
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    @Nullable
+    VastVideoBlurLastVideoFrameTask getBlurLastVideoFrameTask() {
+        return mBlurLastVideoFrameTask;
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    @Nullable
+    String getImageClickDestinationUrl() {
+        return mImageClickDestinationUrl;
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    @Nullable
+    VideoCtaButtonWidget getVideoCtaButtonWidget() {
+        return mVideoCtaButtonWidget;
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    @Nullable
+    VastCompanionAdConfig getSelectedVastCompanionAdConfig() {
+        return mSelectedVastCompanionAdConfig;
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    @Nullable
+    BaseVideoViewController getVideoViewController() {
+        return mVideoViewController;
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    @NonNull
+    ControllerState getState() {
+        return mState;
     }
 }
