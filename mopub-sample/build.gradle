@@ -26,7 +26,7 @@ apply plugin: 'kotlin-android-extensions'
 
 project.group = 'com.mopub'
 project.description = '''MoPub Sample App'''
-project.version = '5.16.0'
+project.version = '5.16.3'
 
 android {
     compileSdkVersion 30
@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        versionCode 84
+        versionCode 87
         versionName version
         minSdkVersion 19
         targetSdkVersion 30

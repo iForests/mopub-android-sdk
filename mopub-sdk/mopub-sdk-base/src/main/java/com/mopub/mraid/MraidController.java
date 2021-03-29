@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Patterns;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -929,6 +930,10 @@ public class MraidController extends MoPubWebViewController {
         mDefaultAdContainer.addView(mWebView,
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+        if (Patterns.WEB_URL.matcher(htmlData).matches()) {
+            mMraidBridge.setContentUrl(htmlData);
+            return;
+        }
         mMraidBridge.setContentHtml(htmlData);
     }
 

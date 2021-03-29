@@ -12,6 +12,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,9 +23,11 @@ import android.view.View.INVISIBLE
 import android.view.View.OnTouchListener
 import android.view.View.VISIBLE
 import android.view.View.generateViewId
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.RelativeLayout
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.media.AudioAttributesCompat
 import androidx.media2.common.SessionPlayer
@@ -85,7 +88,7 @@ class VastVideoViewController(
     val vastIconConfig: VastIconConfig?
     private val externalViewabilitySessionManager = ExternalViewabilitySessionManager.create()
     @VisibleForTesting
-    val iconView: View
+    lateinit var iconView: View
 
     private val progressCheckerRunnable: VastVideoViewProgressRunnable
     private val countdownRunnable: VastVideoViewCountdownRunnable
@@ -255,48 +258,6 @@ class VastVideoViewController(
             it.setOnClickListener{ }
         }
 
-        iconView = vastIconConfig?.let { iconConfig ->
-            VastWebView.createView(context, iconConfig.vastResource).also {
-                it.vastWebViewClickListener = VastWebView.VastWebViewClickListener {
-                    makeVastTrackingHttpRequest(
-                        iconConfig.clickTrackingUris,
-                        null,
-                        getCurrentPosition(),
-                        networkMediaFileUrl,
-                        context
-                    )
-                    vastIconConfig?.handleClick(context, null, vastVideoConfig.dspCreativeId)
-                }
-                it.webViewClient = object : WebViewClient() {
-                    override fun shouldOverrideUrlLoading(
-                        view: WebView,
-                        url: String
-                    ): Boolean {
-                        vastIconConfig?.handleClick(
-                            context,
-                            url,
-                            vastVideoConfig.dspCreativeId
-                        )
-                        return true
-                    }
-                }
-                it.visibility = INVISIBLE
-                val layoutParams = vastIconConfig?.let {
-                    iconConfig
-                    RelativeLayout.LayoutParams(
-                        Dips.asIntPixels(iconConfig.width.toFloat(), context),
-                        Dips.asIntPixels(iconConfig.height.toFloat(), context)
-                    )
-                }
-                val leftMargin = Dips.dipsToIntPixels(LEFT_MARGIN_DIPS.toFloat(), context)
-                val topMargin = Dips.dipsToIntPixels(TOP_MARGIN_DIPS.toFloat(), context)
-                layoutParams?.setMargins(leftMargin, topMargin, 0, 0)
-
-                layout.addView(it, layoutParams)
-                externalViewabilitySessionManager.registerVideoObstruction(it, ViewabilityObstruction.INDUSTRY_ICON)
-            }
-        } ?: View(context)
-
         ctaButtonWidget = VideoCtaButtonWidget(
             context,
             hasCompanionAd,
@@ -352,6 +313,8 @@ class VastVideoViewController(
         // If this is a rewarded video, never allow it to be skippable.
         if (vastVideoConfig.isRewarded) {
             showCloseButtonDelay = if (hasCompanionAd) {
+                vastVideoConfig.countdownTimerDuration
+            } else if (videoDuration > vastVideoConfig.countdownTimerDuration){
                 vastVideoConfig.countdownTimerDuration
             } else {
                 videoDuration
@@ -545,7 +508,7 @@ class VastVideoViewController(
     /**
      * Displays and impresses the icon if the current position of the video is greater than the
      * offset of the icon. Once the current position is greater than the offset plus duration, the
-     * icon is then hidden again.
+     * icon is then hidden again. We intentionally do not preload the icon.
      *
      * @param currentPosition the current position of the video in milliseconds.
      */
@@ -555,14 +518,76 @@ class VastVideoViewController(
             return
         }
 
-        iconView.visibility = VISIBLE
+        if (!::iconView.isInitialized) {
+            iconView = vastIconConfig?.let { iconConfig ->
+                VastWebView.createView(context, iconConfig.vastResource).also {
+                    it.vastWebViewClickListener = VastWebView.VastWebViewClickListener {
+                        makeVastTrackingHttpRequest(
+                            iconConfig.clickTrackingUris,
+                            null,
+                            getCurrentPosition(),
+                            networkMediaFileUrl,
+                            context
+                        )
+                        vastIconConfig?.handleClick(context, null, vastVideoConfig.dspCreativeId)
+                    }
+                    it.webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(
+                            view: WebView,
+                            url: String
+                        ): Boolean {
+                            vastIconConfig?.handleClick(
+                                context,
+                                url,
+                                vastVideoConfig.dspCreativeId
+                            )
+                            return true
+                        }
+
+                        @RequiresApi(Build.VERSION_CODES.O)
+                        override fun onRenderProcessGone(
+                            view: WebView?,
+                            detail: RenderProcessGoneDetail?
+                        ): Boolean {
+                            MoPubLog.log(
+                                CUSTOM,
+                                "onRenderProcessGone() called from the IconView. Ignoring the icon."
+                            )
+                            vastVideoConfig.handleError(
+                                context,
+                                VastErrorCode.UNDEFINED_ERROR,
+                                getCurrentPosition()
+                            )
+                            return true
+                        }
+                    }
+                    val layoutParams = vastIconConfig?.let {
+                        RelativeLayout.LayoutParams(
+                            Dips.asIntPixels(iconConfig.width.toFloat(), context),
+                            Dips.asIntPixels(iconConfig.height.toFloat(), context)
+                        )
+                    }
+                    val leftMargin = Dips.dipsToIntPixels(LEFT_MARGIN_DIPS.toFloat(), context)
+                    val topMargin = Dips.dipsToIntPixels(TOP_MARGIN_DIPS.toFloat(), context)
+                    layoutParams?.setMargins(leftMargin, topMargin, 0, 0)
+
+                    layout.addView(it, layoutParams)
+                    externalViewabilitySessionManager.registerVideoObstruction(
+                        it,
+                        ViewabilityObstruction.INDUSTRY_ICON
+                    )
+                }
+            } ?: View(context)
+            iconView.visibility = VISIBLE
+        }
+
         networkMediaFileUrl?.let {
             vastIconConfig?.handleImpression(context, currentPosition, it)
         }
 
         val durationMS = vastIconConfig?.durationMS ?: return
 
-        if (currentPosition >= offsetMs + durationMS) {
+        if (currentPosition >= offsetMs + durationMS && ::iconView.isInitialized) {
             iconView.visibility = GONE
         }
     }
@@ -655,7 +680,9 @@ class VastVideoViewController(
 
             videoView.visibility = INVISIBLE
             progressBarWidget.visibility = GONE
-            iconView.visibility = GONE
+            if (::iconView.isInitialized) {
+                iconView.visibility = GONE
+            }
 
             topGradientStripWidget.notifyVideoComplete()
             bottomGradientStripWidget.notifyVideoComplete()

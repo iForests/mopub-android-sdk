@@ -1,3 +1,18 @@
+## Version 5.16.3 (March 24, 2021)
+- **Bug Fixes**
+  - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.
+  - Fix rewarded video duration calculation.
+  - Fix rare `InvalidStateException` when finishing a VAST video with a companion image.
+  - Fix `UnsupportedOperationException` caused by non-hierarchical URIs.
+  - Fix release issues from 5.16.2.
+
+## Version 5.16.2 (March 18, 2021) *Deprecated*
+- **Bug Fixes**
+  - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.
+  - Fix rewarded video duration calculation.
+  - Fix rare `InvalidStateException` when finishing a VAST video with a companion image.
+  - Fix `UnsupportedOperationException` caused by non-hierarchical URIs.
+
 ## Version 5.16.0 (February 16, 2021)
 - **Features**
   - Add support for rewarded display ads and rewarded ads with rich media end cards. See [Integration Steps](https://developers.mopub.com/publishers/android/rewarded-ad/).

@@ -138,6 +138,10 @@ public enum UrlAction {
     /* 4 */ OPEN_APP_MARKET(true) {
         @Override
         public boolean shouldTryHandlingUrl(@NonNull final Uri uri) {
+            if (!uri.isHierarchical()) {
+                return false; // we only support hierarchical URIs for OPEN_APP_MARKET
+            }
+
             final String scheme = uri.getScheme();
             final String host = uri.getHost();
 

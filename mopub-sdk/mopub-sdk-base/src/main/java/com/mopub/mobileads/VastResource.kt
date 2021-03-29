@@ -49,14 +49,14 @@ class VastResource(
      */
     fun initializeWebView(webView: VastWebView) {
         webView.run {
-            getResourceValue()?.let { loadData(it) }
+            getHtmlResourceValue()?.let { loadData(it) }
         }
     }
 
     /**
      * Gets the HTML necessary to show the creative type or the url where it exists.
      */
-    fun getResourceValue(): String? {
+    fun getHtmlResourceValue(): String? {
         return when {
             type == Type.HTML_RESOURCE -> resource
             type == Type.IFRAME_RESOURCE -> "<iframe frameborder=\"0\" scrolling=\"no\" " +
@@ -64,7 +64,10 @@ class VastResource(
                     " width=\"${this@VastResource.width}\"" +
                     " height=\"${this@VastResource.height}\"" +
                     " src=\"$resource\"></iframe>"
-            type == Type.STATIC_RESOURCE && creativeType == CreativeType.IMAGE -> resource
+            type == Type.STATIC_RESOURCE && creativeType == CreativeType.IMAGE -> "<html>" +
+                    "<head></head><body style=\"margin:0;padding:0\"><img src=\"$resource\"" +
+                    " width=\"100%\" style=\"max-width:100%;max-height:100%;\" />" +
+                    "</body></html>"
             type == Type.STATIC_RESOURCE && creativeType == CreativeType.JAVASCRIPT ->
                 "<script src=\"$resource\"></script>"
             type == Type.BLURRED_LAST_FRAME -> resource

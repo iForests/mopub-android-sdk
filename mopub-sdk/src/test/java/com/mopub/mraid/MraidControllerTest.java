@@ -587,6 +587,24 @@ public class MraidControllerTest {
     }
 
     @Test
+    public void fillContent_withUrl_shouldLoadUrl() {
+        subject = new MraidController(
+                activity, "", PlacementType.INTERSTITIAL,
+                mockBridge, mockTwoPartBridge, mockScreenMetricsWaiter);
+        subject.setMoPubWebViewListener(mockWebViewListener);
+        reset(mockWebViewListener, mockBridge);
+        subject.setOrientationBroadcastReceiver(mockOrientationBroadcastReceiver);
+        subject.setRootView(rootView);
+        ViewabilityManager.setViewabilityEnabled(true);
+
+        subject.fillContent("https://www.thisshouldlooklikea.url", null, null);
+
+        verify(mockBridge, never()).setContentHtml(any());
+        verify(mockBridge).setContentUrl("https://www.thisshouldlooklikea.url");
+        verify(mockWebViewListener, never()).onLoaded(any(View.class));
+    }
+
+    @Test
     public void orientationBroadcastReceiver_whenUnregistered_shouldIgnoreOnReceive() {
         Intent intent = mock(Intent.class);
         when(intent.getAction()).thenReturn("some bogus action which we hope never to see");

@@ -6,7 +6,7 @@ Sign up for an account at [http://app.mopub.com/](http://app.mopub.com/).
 
 ## Need Help?
 
-You can find integration documentation on our [wiki](https://github.com/mopub/mopub-android-sdk/wiki/Getting-Started) and additional help documentation on our [developer help site](http://dev.twitter.com/mopub).
+You can find integration documentation on our [wiki](https://github.com/mopub/mopub-android-sdk/wiki/Getting-Started) and additional help documentation on our [developer help site](https://developers.mopub.com/publishers/android/).
 
 To file an issue with our team visit the [MoPub Forum](https://twittercommunity.com/c/advertiser-api/mopub) or email [support@mopub.com](mailto:support@mopub.com).
 
@@ -30,7 +30,7 @@ The MoPub SDK is available via:
     }
 
     dependencies {
-        implementation('com.mopub:mopub-sdk:5.16.0@aar') {
+        implementation('com.mopub:mopub-sdk:5.16.3@aar') {
             transitive = true
         }
     }
@@ -51,17 +51,17 @@ The MoPub SDK is available via:
         // ... other project dependencies
 
         // For banners
-        implementation('com.mopub:mopub-sdk-banner:5.16.0@aar') {
+        implementation('com.mopub:mopub-sdk-banner:5.16.3@aar') {
             transitive = true
         }
         
         // For interstitials and rewarded ads
-        implementation('com.mopub:mopub-sdk-fullscreen:5.16.0@aar') {
+        implementation('com.mopub:mopub-sdk-fullscreen:5.16.3@aar') {
             transitive = true
         }
 
         // For native static (images).
-        implementation('com.mopub:mopub-sdk-native-static:5.16.0@aar') {
+        implementation('com.mopub:mopub-sdk-native-static:5.16.3@aar') {
             transitive = true
         }
     }
@@ -90,18 +90,13 @@ The MoPub SDK is available via:
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for a complete list of additions, fixes, and enhancements in the latest release.
 
 - **Features**
-  - Add support for rewarded display ads and rewarded ads with rich media end cards. See [Integration Steps](https://developers.mopub.com/publishers/android/rewarded-ad/).
-  - Rename `MoPubRewardedVideos` to `MoPubRewardedAds` and `MoPubRewardedVideoListener` to `MoPubRewardedAdListener`. See the [API Reference](https://developers.mopub.com/publishers/reference/android/MoPub/) for more details.
-  - Add 5G cellular support.
-  - Update AndroidX Media2 dependencies from version 1.0.1 to 1.1.1.
 
 - **Bug Fixes**
-  - Fix crash when adding a theme to native recycler view layout.
-  - Fix memory leak when destroy is called on a fullscreen ad.
-  - Fix rotation for ads without an orientation specified.
-  - Fix rewarded ads being playable after they have expired.
-  - Address clickability issues with image and rewarded ads.
-  - Address `MoPubRewardedVideos.hasRewardedVideo()` returning the wrong value in certain instances.
+  - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.
+  - Fix rewarded video duration calculation.
+  - Fix rare `InvalidStateException` when finishing a VAST video with a companion image.
+  - Fix `UnsupportedOperationException` caused by non-hierarchical URIs.
+  - Fix release issues from 5.16.2.
 
 ## Requirements
 
