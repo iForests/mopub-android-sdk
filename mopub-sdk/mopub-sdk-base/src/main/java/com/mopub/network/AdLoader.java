@@ -326,12 +326,17 @@ public class AdLoader {
         if (context != null) {
             ImpressionData impressionData = adResponse.getImpressionData();
             String adUnitId = impressionData.getAdUnitId();
-            Double revenue = impressionData.getPublisherRevenue();
+            Double publisherRevenue = impressionData.getPublisherRevenue();
+            
+            float revenue = 0.01f;
+            if (publisherRevenue != null) {
+                revenue = publisherRevenue.floatValue();
+            }
 
             if (mAdStreamSharedPreferences == null) {
                 mAdStreamSharedPreferences = context.getSharedPreferences(AD_STREAM_REVENUE_DATA, Context.MODE_PRIVATE);
             }
-            mAdStreamSharedPreferences.edit().putFloat(adUnitId, revenue.floatValue()).apply();
+            mAdStreamSharedPreferences.edit().putFloat(adUnitId, revenue).apply();
         }
 
         if (mOriginalListener != null) {
