@@ -30,7 +30,7 @@ The MoPub SDK is available via:
     }
 
     dependencies {
-        implementation('com.mopub:mopub-sdk:5.16.3@aar') {
+        implementation('com.mopub:mopub-sdk:5.16.4@aar') {
             transitive = true
         }
     }
@@ -51,17 +51,17 @@ The MoPub SDK is available via:
         // ... other project dependencies
 
         // For banners
-        implementation('com.mopub:mopub-sdk-banner:5.16.3@aar') {
+        implementation('com.mopub:mopub-sdk-banner:5.16.4@aar') {
             transitive = true
         }
         
         // For interstitials and rewarded ads
-        implementation('com.mopub:mopub-sdk-fullscreen:5.16.3@aar') {
+        implementation('com.mopub:mopub-sdk-fullscreen:5.16.4@aar') {
             transitive = true
         }
 
         // For native static (images).
-        implementation('com.mopub:mopub-sdk-native-static:5.16.3@aar') {
+        implementation('com.mopub:mopub-sdk-native-static:5.16.4@aar') {
             transitive = true
         }
     }
@@ -89,14 +89,8 @@ The MoPub SDK is available via:
 ## New in this Version
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for a complete list of additions, fixes, and enhancements in the latest release.
 
-- **Features**
-
 - **Bug Fixes**
-  - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.
-  - Fix rewarded video duration calculation.
-  - Fix rare `InvalidStateException` when finishing a VAST video with a companion image.
-  - Fix `UnsupportedOperationException` caused by non-hierarchical URIs.
-  - Fix release issues from 5.16.2.
+  - Fix `InvalidStateException` when finishing VAST videos on some devices.
 
 ## Requirements
 

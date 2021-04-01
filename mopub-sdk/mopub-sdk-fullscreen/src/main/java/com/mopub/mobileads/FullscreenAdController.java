@@ -120,6 +120,7 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
     private boolean mIsCalibrationDone;
     private boolean mRewardedCompletionFired;
     private int mVideoTimeElapsed;
+    private boolean mOnVideoFinishCalled;
 
     @VisibleForTesting
     enum ControllerState {
@@ -351,20 +352,17 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
             return;
         }
 
+        if (mOnVideoFinishCalled) {
+            return;
+        }
+        mOnVideoFinishCalled = true;
+
         mVideoTimeElapsed = timeElapsed;
 
         if (mVideoViewController != null) {
             mVideoViewController.onPause();
             mVideoViewController.onDestroy();
             mVideoViewController = null;
-        }
-
-        // remove mImageView first to prevent IllegalStateException when added to relativeLayout
-        if (mImageView != null) {
-            final ViewGroup imageViewParent = (ViewGroup) mImageView.getParent();
-            if (imageViewParent != null) {
-                imageViewParent.removeView(mImageView);
-            }
         }
 
         mCloseableLayout.removeAllViews();
@@ -388,8 +386,18 @@ public class FullscreenAdController implements BaseVideoViewController.BaseVideo
                     RelativeLayout.LayoutParams.MATCH_PARENT,
                     RelativeLayout.LayoutParams.MATCH_PARENT);
             mImageView.setLayoutParams(layoutParams);
+            // remove mImageView first to prevent IllegalStateException when added to relativeLayout
+            final ViewGroup imageViewParent = (ViewGroup) mImageView.getParent();
+            if (imageViewParent != null) {
+                imageViewParent.removeView(mImageView);
+            }
             relativeLayout.addView(mImageView);
             if (mVideoCtaButtonWidget != null) {
+                // remove mVideoCtaButtonWidget first to prevent IllegalStateException when added to relativeLayout
+                final ViewGroup videoCtaButtonWidgetParent = (ViewGroup) mVideoCtaButtonWidget.getParent();
+                if (videoCtaButtonWidgetParent != null) {
+                    videoCtaButtonWidgetParent.removeView(mVideoCtaButtonWidget);
+                }
                 relativeLayout.addView(mVideoCtaButtonWidget);
             }
             mCloseableLayout.addView(relativeLayout);

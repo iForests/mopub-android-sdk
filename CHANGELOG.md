@@ -1,3 +1,7 @@
+## Version 5.16.4 (March 31, 2021)
+- **Bug Fixes**
+  - Fix `InvalidStateException` when finishing VAST videos on some devices.
+
 ## Version 5.16.3 (March 24, 2021)
 - **Bug Fixes**
   - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.

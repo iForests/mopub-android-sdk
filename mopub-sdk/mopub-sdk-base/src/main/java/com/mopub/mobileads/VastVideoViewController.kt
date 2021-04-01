@@ -668,7 +668,6 @@ class VastVideoViewController(
             stopRunnables()
             updateCountdown()
             isComplete = true
-            videoCompleted(false, getDuration())
 
             if (!videoError && vastVideoConfig.remainingProgressTrackerCount == 0) {
                 externalViewabilitySessionManager.recordVideoEvent(
@@ -690,7 +689,7 @@ class VastVideoViewController(
             closeButtonWidget.notifyVideoComplete()
 
             // Show companion ad or blurred last frame
-            baseVideoViewControllerListener.onVideoFinish(getDuration())
+            videoCompleted(true, getDuration())
         }
 
         override fun onSeekCompleted(player: SessionPlayer, position: Long) {
